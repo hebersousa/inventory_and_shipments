@@ -9,12 +9,12 @@ import 'package:ias/login/register_page.dart';
 import 'package:ias/main_page.dart';
 
 
-class LoginPage extends StatefulWidget {
+class Login2Page extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginPage2State createState() => _LoginPage2State();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPage2State extends State<Login2Page> {
   final _formKey = GlobalKey<FormState>();
 
   final _emailTextController = TextEditingController();
@@ -28,15 +28,16 @@ class _LoginPageState extends State<LoginPage> {
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
 
-    await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+    //await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => MainPage(
-            user: user,
-          ),
+          builder: (context) =>
+              MainPage(
+                user: user,
+              ),
         ),
       );
     }
@@ -44,33 +45,40 @@ class _LoginPageState extends State<LoginPage> {
     return firebaseApp;
   }
 
-   _formField(TextEditingController textEditingController,
-      FocusNode focusNode, String hintText, Function(String?) validator, [bool obscureText= false] ) =>  TextFormField(
-           controller: textEditingController,
-           focusNode: focusNode,
-           obscureText: obscureText,
-           validator: (value) => validator(value),
-           decoration: InputDecoration(
-             hintText: hintText,
-             errorBorder: UnderlineInputBorder(
-               borderRadius: BorderRadius.circular(6.0),
-               borderSide: BorderSide(
-                 color: Colors.red,
-               ),
-             ),
-           ),
-   );
+  _formField(TextEditingController textEditingController,
+      FocusNode focusNode, String hintText, Function(String?) validator,
+      [bool obscureText = false]) {
+
+    textEditingController.text = obscureText ? 'masukan':'hebersousa@gmail.com';
+    return  TextFormField(
+
+        controller: textEditingController,
+        focusNode: focusNode,
+        obscureText: obscureText,
+        validator: (value) => validator(value),
+        decoration: InputDecoration(
+          hintText: hintText,
+          errorBorder: UnderlineInputBorder(
+            borderRadius: BorderRadius.circular(6.0),
+            borderSide: BorderSide(
+              color: Colors.red,
+            ),
+          ),
+        ),
+      );
+
+}
 
 
   _button(String label, Function function) =>  Expanded(
-      child: ElevatedButton(
-        onPressed: () => function(),
-        child: Text(
-          label,
-          style: TextStyle(color: Colors.white),
-        ),
+    child: ElevatedButton(
+      onPressed: () => function(),
+      child: Text(
+        label,
+        style: TextStyle(color: Colors.white),
       ),
-    );
+    ),
+  );
 
   _goRegister() => Navigator.of(context).push(
     MaterialPageRoute(
@@ -79,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
     ),
   );
 
-   _login() async  {
+  _login() async  {
     _focusEmail.unfocus();
     _focusPassword.unfocus();
 
@@ -89,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         _isProcessing = true;
       });
 
+      //await FirebaseAuth.instance.setPersistence(Persistence.SESSION);
       User? user = await FireAuth
           .signInUsingEmailPassword(context: context ,
         email: _emailTextController.text,
@@ -123,14 +132,7 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           title: Text('Firebase Authentication'),
         ),
-        body: FutureBuilder(
-          future: _initializeFirebase(),
-          builder: (context, snapshot) {
-         //   if( snapshot.error != null)
-           //   return Text("Error");
-
-            if (snapshot.connectionState == ConnectionState.done) {
-              return Padding(
+        body:  Padding(
                 padding: const EdgeInsets.only(left: 24.0, right: 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -150,11 +152,11 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(height: 8.0),
                           _formField(_emailTextController, _focusEmail,
                               "Email", (value) => Validator.validateEmail(
-                                    email: value.toString(),)
+                                email: value.toString(),)
                           ),
                           _formField(_passwordTextController, _focusPassword,
                               "Password", (value) => Validator.validatePassword(
-                            password: value.toString(),), true),
+                                password: value.toString(),), true),
                           SizedBox(height: 24.0),
                           _isProcessing
                               ? CircularProgressIndicator()
@@ -173,14 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                     )
                   ],
                 ),
-              );
-            }
-
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-        ),
+              )
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ias/login/login2_page.dart';
 import 'package:ias/login/login_page.dart';
 import 'package:ias/login/fire_auth.dart';
 
@@ -24,11 +25,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-      body: Row(
+    return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
 
@@ -51,7 +48,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               });
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => LoginPage(),
+                  builder: (context) => Login2Page(),
                 ),
               );
             },
@@ -59,7 +56,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
           ),
         ],
-      ),
-    );
+      );
+
   }
 }
