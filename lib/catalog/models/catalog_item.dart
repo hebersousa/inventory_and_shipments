@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ias/utils.dart';
 
 class Category {
       int id;
@@ -60,7 +61,9 @@ class CatalogItem {
       'asin': asin,
       'shortTitle' : shortTitle,
       if(urlImage!=null) 'urlImage' : urlImage,
-      'query' : '$asin $title $shortTitle'
+      //'query' : '$asin $title $shortTitle'
+      if(asin!=null && title!=null)
+        'keywords' : Utils.generateKeybyString(asin!) + Utils.generateKeybyArray(title?.split(' '))
     };
   }
 }

@@ -82,12 +82,12 @@ _linkImage() {
         item?.asin = _asinController.text;
         item?.title = _titleController.text;
         item?.shortTitle = _shortTitleController.text;
-        item?.shortTitle = _urlImageController.text;
+        item?.urlImage = _urlImageController.text;
     }
 
     _provider?.saveItem(item!);
     _provider?.cleanList();
-    _provider?.fetchNextUsers();
+    _provider?.fetchNext();
     Navigator.pop(context);
   }
 

@@ -76,14 +76,14 @@ class _CatalogListViewWidgetState extends State<CatalogListViewWidget> {
         //controller: scrollController,
         itemCount: provider.catalogItems.length+1,
         itemBuilder: (context,index){
-          print("index $index");
+         // print("index $index");
           var itens = provider.catalogItems;
           if(index < itens.length)
             return _createItem2(itens[index], provider);
 
           if(index == itens.length)
             if(provider.hasNext) {
-              provider.fetchNextUsers();
+              provider.fetchNext();
               return _circularWidget();
             }
 

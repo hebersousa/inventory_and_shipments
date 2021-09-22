@@ -7,11 +7,18 @@ class CatalogApi {
     static Future<QuerySnapshot> getCatalog(
       int limit, {
       DocumentSnapshot? startAfter,
+      String? search
       }) async {
-      final refCatalog = FirebaseFirestore.instance
+
+      var termR = "Certainty66".split("");//.reversed.join("");
+
+      var refCatalog = FirebaseFirestore.instance
           .collection('catalog')
           .orderBy('title')
           .limit(limit);
+
+      if(search != null)
+          refCatalog = refCatalog.where("keywords", arrayContains: search);
 
       if (startAfter == null) {
           return refCatalog.get();

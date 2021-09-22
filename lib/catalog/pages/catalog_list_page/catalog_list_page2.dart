@@ -8,11 +8,19 @@ import 'package:provider/provider.dart';
 
 class CatalogListPage2 extends StatelessWidget {
 
+  _createAppBar(BuildContext context) {
+    return  AppBar(title: Text('Catalog', style: TextStyle(color: Colors.white),),
+      leading: IconButton(color: Colors.white,
+        icon: Icon(Icons.menu),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      ),);
+  }
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (context) => CatalogProvider(),
     builder:(context, child) =>  Scaffold(
+        appBar: _createAppBar(context),
         floatingActionButton: FloatingActionButton(
             onPressed: () =>_goToNew(context),
             child: Icon(Icons.add)

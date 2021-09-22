@@ -13,6 +13,7 @@ class CatalogProvider extends ChangeNotifier {
   bool _hasNext = true;
   bool _isFetching = false;
   TextEditingController _editingController =TextEditingController();
+  int _lastTypeTime= 0;
 
   String get errorMessage => _errorMessage;
 
@@ -24,6 +25,7 @@ class CatalogProvider extends ChangeNotifier {
 
   void reset(){
     _editingController.text='';
+    updateText();
 
   }
 
@@ -34,11 +36,44 @@ class CatalogProvider extends ChangeNotifier {
   }
 
 
+  bool lastTypeTimeLimitExceeded(){
+
+    if( (DateTime.now().millisecondsSinceEpoch - _lastTypeTime) > 2000 ) {
+      _lastTypeTime = DateTime.now().millisecondsSinceEpoch;
+      return true;
+    }
+    return false;
+  }
+
+
   CatalogProvider() {
     _editingController.addListener(() {
-        cleanList();
-      print(_editingController.text);
+
+      if(lastTypeTimeLimitExceeded()) {
+       //  print('IN: '+_editingController.text);
+    //      cleanList();
+      //    fetchNextUsers();
+        //  print('text ${_editingController.text}');
+      }
+
+     // lateFetch();
     });
+  }
+
+
+  Future updateText() async {
+    //_isFetching = true;
+      var search = _editingController.text.toLowerCase();
+      if( search.length !=1 ) {
+        cleanList();
+        String oldSearch = search;
+        await Future.delayed(Duration(seconds: 1));
+        if (oldSearch == search) {
+            fetchNext();
+            print('text $search');
+      }
+    }
+
   }
 
   List<CatalogItem> get catalogItems => _catalogSnapshot.map((snap) {
@@ -47,8 +82,8 @@ class CatalogProvider extends ChangeNotifier {
     return CatalogItem.fromFirebase(snap);
   }).toList();
 
-  Future fetchNextUsers() async {
-    print('fetch has called');
+  Future fetchNext() async {
+    //print('fetch has called');
     if (_isFetching) return;
 
     _errorMessage = '';
@@ -56,11 +91,15 @@ class CatalogProvider extends ChangeNotifier {
 
     try {
       if(_hasNext){
+
+        var search = _editingController.text.toLowerCase();
         final snap = await CatalogApi.getCatalog(
           documentLimit,
           startAfter: _catalogSnapshot.isNotEmpty ? _catalogSnapshot.last : null,
+          search: search.isNotEmpty ? search
+              : null
         );
-
+        print('OUT: '+ search);
         _catalogSnapshot.addAll(snap.docs);
 
         if (snap.docs.length < documentLimit) _hasNext = false;
