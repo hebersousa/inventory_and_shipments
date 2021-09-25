@@ -30,44 +30,6 @@ class _CatalogListViewWidgetState extends State<CatalogListViewWidget> {
     super.dispose();
   }
 
-
-  void scrollListener() {
-
-/*
-    if (scrollController.offset ==
-        scrollController.position.maxScrollExtent  ) {
-      if (widget.catalogProvider.hasNext
-      ) {
-        widget.catalogProvider.fetchNextUsers();
-      }
-
-    }
-    */
-  }
-
-/*
-  @override
-  Widget build2(BuildContext context) {
-    
-    widget.catalogProvider = Provider.of<CatalogProvider>(context)!;
-    return ListView(
-        controller: scrollController,
-        padding: EdgeInsets.all(12),
-        children: [
-          ...widget.catalogProvider!.catalogItems
-              .map((item) => _createItem(item))
-              .toList(),
-          if (widget.catalogProvider!.hasNext )
-            Center(
-              child: GestureDetector(
-                onTap: widget.catalogProvider!.fetchNextUsers,
-                child: _circularWidget(),
-              ),
-            ),
-        ],
-      );
-}
-*/
   @override
   Widget build(BuildContext context) => Consumer<CatalogProvider>(
     builder: (context, provider, _){
@@ -139,7 +101,6 @@ class _CatalogListViewWidgetState extends State<CatalogListViewWidget> {
   }
 
   _circularWidget() {
-
     return Center(
       child: Container(
         height: 25,

@@ -18,6 +18,7 @@ class ShipmentProvider extends ChangeNotifier {
         SetOptions(merge: true),
       );
     } else {
+      item.createdAt = DateTime.now();
       await shipmentsRef.add(item);
     }
 

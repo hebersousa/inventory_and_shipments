@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ias/utils.dart';
@@ -21,7 +23,7 @@ class Category {
       String toString() => toJson().toString();
 }
 
-class CatalogItem {
+class CatalogItem  {
 
   String? key;
   String? asin;
@@ -66,6 +68,20 @@ class CatalogItem {
         'keywords' : Utils.generateKeybyString(asin!) + Utils.generateKeybyArray(title?.split(' '))
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is CatalogItem && other.title == title && other.asin == asin;
+  }
+
+  @override
+  int get hashCode => hashValues(title, asin);
+
+  @override
+  String toString()=> title!.toLowerCase();
 }
 
 

@@ -9,29 +9,45 @@ import 'package:provider/provider.dart';
 class CatalogListPage2 extends StatelessWidget {
 
   _createAppBar(BuildContext context) {
-    return  AppBar(title: Text('Catalog', style: TextStyle(color: Colors.white),),
-      leading: IconButton(color: Colors.white,
-        icon: Icon(Icons.menu),
-        onPressed: () => Scaffold.of(context).openDrawer(),
-      ),);
+    var addButton = IconButton(
+        color:  Colors.white,
+        icon: Icon(Icons.add),
+        onPressed: ()=> _goToNew(context)
+    );
+
+    var title = Text('Catalog', style: TextStyle(color: Colors.white),);
+
+    var menuButton = IconButton(
+      color: Colors.white,
+      icon: Icon(Icons.menu),
+      onPressed: () => Scaffold.of(context).openDrawer(),
+    );
+
+    return  AppBar(title: title,
+      actions: [addButton],
+      leading: menuButton,);
   }
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (context) => CatalogProvider(),
-    builder:(context, child) =>  Scaffold(
+    builder:(context, child) =>  _scafold(context),
+  );
+
+
+  _scafold(BuildContext context) {
+    return Scaffold(
         appBar: _createAppBar(context),
-        floatingActionButton: FloatingActionButton(
-            onPressed: () =>_goToNew(context),
-            child: Icon(Icons.add)
-        ),
         body:  Column(children: [
           CatalogHeaderWidget(),
           Expanded(child: CatalogListViewWidget())
         ],)
-    ),
-  );
+    );
+  }
 }
+
+
+
 
 _goToNew(BuildContext context,[var id]) {
   final value2 = Provider.of<CatalogProvider>(context, listen: false);

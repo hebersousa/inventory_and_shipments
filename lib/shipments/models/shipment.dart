@@ -14,6 +14,7 @@ class Shipment {
   double? priceAvg;
   Prepcenter? prepcenter;
   CatalogItem? catalogItem;
+  DateTime? createdAt;
 
  _test() {}
 
@@ -28,11 +29,13 @@ class Shipment {
       prepcenter = Prepcenter.fromJson(json['prepcenter']);
 
   Map<String, dynamic>  toJson() => {
-    if(shipDate!=null) 'ship_date' : shipDate?.toString(),
-    if(deliverDate!=null) 'deliver_date':deliverDate?.toString(),
+    if(shipDate!=null) 'ship_date' : shipDate,
+    if(deliverDate!=null) 'deliver_date':deliverDate,
     'count':count,
     if(priceAvg!=null)'price_avg':priceAvg,
-    if(prepcenter!=null)'prepcenter':prepcenter?.toJson()
+    if(prepcenter!=null)'prepcenter':prepcenter?.toJson(),
+    if(catalogItem!=null)'catalog':catalogItem?.toJson(),
+    if(createdAt!=null) 'created_at':createdAt
   };
 
 }

@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:ias/catalog/api/catalog_api.dart';
 import 'package:ias/catalog/models/catalog_item.dart';
 
-class CatalogProvider extends ChangeNotifier {
+class SearchFirebaseCollection extends ChangeNotifier {
 
+  String? collectionName;
   final _catalogSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
   int documentLimit = 10;
@@ -23,6 +24,8 @@ class CatalogProvider extends ChangeNotifier {
   bool get isFetching => _isFetching;
 
   TextEditingController get editingController => _editingController;
+
+  SearchFirebaseCollection(this.collectionName);
 
   void reset(){
     _editingController.text='';
@@ -42,7 +45,7 @@ class CatalogProvider extends ChangeNotifier {
     _editingController.addListener(() {
 
       if(_editingController.text != _oldSearch )
-          updateText();
+        updateText();
       _oldSearch = _editingController.text;
     });
   }
@@ -50,13 +53,13 @@ class CatalogProvider extends ChangeNotifier {
 
   Future updateText() async {
     //_isFetching = true;
-      var search = _editingController.text.toLowerCase();
-      if( search.length !=1 ) {
-        cleanList();
-        await Future.delayed(Duration(seconds: 1));
-        if (search == _editingController.text.toLowerCase()) {
-            fetchNext();
-            print('text $search');
+    var search = _editingController.text.toLowerCase();
+    if( search.length !=1 ) {
+      cleanList();
+      await Future.delayed(Duration(seconds: 1));
+      if (search == _editingController.text.toLowerCase()) {
+        fetchNext();
+        print('text $search');
       }
     }
   }
@@ -79,16 +82,16 @@ class CatalogProvider extends ChangeNotifier {
 
         var search = _editingController.text.toLowerCase();
         final snap = await CatalogApi.getCatalog(
-          documentLimit,
-          startAfter: _catalogSnapshot.isNotEmpty ? _catalogSnapshot.last : null,
-          search: search.isNotEmpty ? search : null
+            documentLimit,
+            startAfter: _catalogSnapshot.isNotEmpty ? _catalogSnapshot.last : null,
+            search: search.isNotEmpty ? search : null
         );
-        print('OUT: '+ search+ ' size ${snap.docs.length }');
+        print('OUT: '+ search);
         _catalogSnapshot.addAll(snap.docs);
 
         if (snap.docs.length < documentLimit) _hasNext = false;
-    }
-        notifyListeners();
+      }
+      notifyListeners();
     } catch (error) {
       _errorMessage = error.toString();
       notifyListeners();
@@ -99,7 +102,7 @@ class CatalogProvider extends ChangeNotifier {
 
   Future<void> saveItem(CatalogItem item) async {
 
-    var catalogRef = FirebaseFirestore.instance.collection('catalog').withConverter<CatalogItem>(
+    var catalogRef = FirebaseFirestore.instance.collection(collectionName!).withConverter<CatalogItem>(
       fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
       toFirestore: (catalogItem, _) => catalogItem.toJson(),
     );

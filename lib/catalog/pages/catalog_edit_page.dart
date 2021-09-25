@@ -126,7 +126,7 @@ _linkImage() {
     var backBt = BackButton(onPressed: ()=>Navigator.pop(context),
       color: Colors.white,);
     var saveBt = TextButton(onPressed: ()=> _salvar2(),
-        child: Text("Salvar", style: TextStyle(color: Colors.white),)
+        child: Text("Save", style: TextStyle(color: Colors.white),)
     );
 
     return  AppBar(title: title ,

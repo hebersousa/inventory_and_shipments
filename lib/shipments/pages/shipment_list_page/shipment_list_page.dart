@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ias/base_provider.dart';
 import 'package:ias/shipments/models/address.dart';
 import 'package:ias/shipments/models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
+import 'package:ias/shipments/pages/shipment_edit_page/shipment_edit_page.dart';
 import 'package:ias/shipments/providers/prepcenter_provider.dart';
 import 'package:ias/shipments/providers/shipment_provider.dart';
 
@@ -16,7 +18,7 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
     var addButton = IconButton(
         color:  Colors.white,
         icon: Icon(Icons.add),
-        onPressed: ()=> _addShipmentItem()
+        onPressed: ()=> _goToNew(context)
     );
 
     var title = Text('Shipments', style: TextStyle(color: Colors.white),);
@@ -42,6 +44,7 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
   }
 
   _addPrepcenterItem(){
+
     var provider = PrepcenterProvider();
     var address = Address(line1:'2721 Forsyth Rd, Suite 107-1155',
         city:  'winter Park',
@@ -67,8 +70,15 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
     var shipment = Shipment(
         count: 2,
         prepcenter: prep2,
-        shipDate: DateTime.parse('2021-09-21')
+        shipDate: DateTime.parse('2021-09-21'),
+        deliverDate: DateTime.now()
     );
     provider.saveItem(shipment);
   }
+
+  _goToNew(BuildContext context) =>
+      Navigator.of(context).push(
+          MaterialPageRoute( builder: (context) => ShipmentEditPage() ),
+    );
+
 }

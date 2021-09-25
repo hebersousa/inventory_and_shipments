@@ -44,7 +44,7 @@ class _CatalogHeaderWidgetState extends State<CatalogHeaderWidget> {
       padding: EdgeInsets.all(10),
       child: TextField(
         controller: _editingController,
-        onChanged: (_)=>provider.updateText(),
+       // onChanged: (_)=>provider.updateText(),
         style: TextStyle(color: Colors.black),
         decoration: decoration,
       ),
