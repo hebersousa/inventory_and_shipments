@@ -26,4 +26,24 @@ class CatalogApi {
           return refCatalog.startAfterDocument(startAfter).get();
       }
     }
+
+
+    static Future<void> saveItem(CatalogItem item) async {
+
+      var catalogRef = FirebaseFirestore.instance.collection('catalog').withConverter<CatalogItem>(
+        fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
+        toFirestore: (catalogItem, _) => catalogItem.toJson(),
+      );
+
+      if(item.key != null ) {
+        await catalogRef.doc(item.key).set(item,
+          SetOptions(merge: true),
+        );
+      } else {
+        await catalogRef.add(item);
+      }
+
+      return Future.value();
+
+    }
 }

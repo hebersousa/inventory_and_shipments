@@ -49,7 +49,7 @@ class _LoginPage2State extends State<Login2Page> {
       FocusNode focusNode, String hintText, Function(String?) validator,
       [bool obscureText = false]) {
 
-    textEditingController.text = obscureText ? 'masukan':'hebersousa@gmail.com';
+
     return  TextFormField(
 
         controller: textEditingController,

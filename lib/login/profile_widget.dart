@@ -31,7 +31,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
           SizedBox(height: 16.0),
           Text(
-            'EMAIL: ${_currentUser.email}',
+            '${_currentUser.email}',
             style: Theme.of(context).textTheme.bodyText1,
           ),
           SizedBox(width: 16.0),

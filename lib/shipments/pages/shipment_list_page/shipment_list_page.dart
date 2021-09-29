@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ias/base_provider.dart';
+import 'package:ias/shipments/api/prepcenter_api.dart';
 import 'package:ias/shipments/models/address.dart';
 import 'package:ias/shipments/models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/shipment_edit_page.dart';
-import 'package:ias/shipments/providers/prepcenter_provider.dart';
-import 'package:ias/shipments/providers/shipment_provider.dart';
+import 'package:ias/shipments/pages/shipment_list_page/shipment_listview_widget.dart';
+import 'package:ias/shipments/providers/prepcenter_list_provider.dart';
+import 'package:ias/shipments/providers/shipment_list_provider.dart';
+import 'package:provider/provider.dart';
 
 class ShipmentListPage extends StatefulWidget {
   @override
@@ -15,10 +19,11 @@ class ShipmentListPage extends StatefulWidget {
 class _ShipmentListPageState extends State<ShipmentListPage> {
 
   _createAppBar(BuildContext context) {
+    var provider = context.read<ShipmentListProvider>();
     var addButton = IconButton(
         color:  Colors.white,
         icon: Icon(Icons.add),
-        onPressed: ()=> _goToNew(context)
+        onPressed: ()=> _goToNew(provider)
     );
 
     var title = Text('Shipments', style: TextStyle(color: Colors.white),);
@@ -35,17 +40,21 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+    create: (context) => ShipmentListProvider(),
+    builder:(context, child) =>  _scafold(context),
+  );
 
+  _scafold(BuildContext context) {
     return Scaffold(
       appBar: _createAppBar(context),
-      body: Container(),
+      body: ShipmentListviewWidget(),
     );
   }
 
   _addPrepcenterItem(){
 
-    var provider = PrepcenterProvider();
+    var provider = PrepcenterListProvider();
     var address = Address(line1:'2721 Forsyth Rd, Suite 107-1155',
         city:  'winter Park',
         state: 'Florida',
@@ -63,22 +72,37 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
     provider.saveItem(prep);
   }
 
-  _addShipmentItem(){
-    var provider = ShipmentProvider();
-
-    var prep2 = Prepcenter(name: "FlashBox", key:"HHh0N7iwCQkoBeTb6Xan");
-    var shipment = Shipment(
-        count: 2,
-        prepcenter: prep2,
-        shipDate: DateTime.parse('2021-09-21'),
-        deliverDate: DateTime.now()
-    );
-    provider.saveItem(shipment);
-  }
-
+/*
   _goToNew(BuildContext context) =>
       Navigator.of(context).push(
           MaterialPageRoute( builder: (context) => ShipmentEditPage() ),
     );
+*/
+  _goToNew(ShipmentListProvider provider,[var id] ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<ShipmentListProvider>
+              .value(value:  provider,
+            child: ShipmentEditPage(id: id) ,)
+      ),
+    );
+  }
 
+  _test() {
+   PrepcenterApi.getPrepcenter(10).then((QuerySnapshot snapshot) {
+
+     var lsit = snapshot.docs.map((snap) {
+       //Map<String, dynamic> data = snap.data()! as Map<String, dynamic>;
+       //return CatalogItem.fromJson(data);
+       return Prepcenter.fromFirebase(snap);
+     }).toList();
+
+     var k = 0;
+
+   });
+
+
+
+
+  }
 }

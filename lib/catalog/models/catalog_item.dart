@@ -36,6 +36,8 @@ class CatalogItem  {
     this.shortTitle,
     this.urlImage});
 
+  String get urlAmazon => 'http://www.amazon.com/dp/$asin';
+
   CatalogItem.fromFirebase(DocumentSnapshot document){
 
     var data = document.data()! as Map<String, dynamic>;
@@ -51,6 +53,7 @@ class CatalogItem  {
 
   CatalogItem.fromJson(Map<String, dynamic> json)
       :
+    key = json['key'],
     title = json['title'] ,
     asin = json['asin'] ,
     shortTitle = json['shortTitle'],
@@ -59,13 +62,23 @@ class CatalogItem  {
 
   Map<String, Object?> toJson() {
     return {
-      'title': title,
+      if(key!=null)'key':key,
+      if(title!=null)'title': title,
       'asin': asin,
       'shortTitle' : shortTitle,
       if(urlImage!=null) 'urlImage' : urlImage,
       //'query' : '$asin $title $shortTitle'
       if(asin!=null && title!=null)
         'keywords' : Utils.generateKeybyString(asin!) + Utils.generateKeybyArray(title?.split(' '))
+    };
+  }
+
+  Map<String, Object?> toSimpleJson() {
+    return {
+      'key':key,
+      'asin':asin,
+      'shortTitle':shortTitle,
+      if(urlImage!=null) 'urlImage' : urlImage,
     };
   }
 
@@ -81,7 +94,7 @@ class CatalogItem  {
   int get hashCode => hashValues(title, asin);
 
   @override
-  String toString()=> title!.toLowerCase();
+  String toString()=> title!=null ? title!.toLowerCase() : asin!.toLowerCase();
 }
 
 

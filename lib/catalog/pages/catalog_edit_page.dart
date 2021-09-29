@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/catalog/providers/catalog_provider.dart';
+import 'package:ias/catalog/api/catalog_api.dart';
+import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/catalog_item.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,7 +27,7 @@ class _CatalogEditPageState extends State<CatalogEditPage> {
   final _urlImageController = TextEditingController();
   late var _streamController = StreamController<String>();
   bool _loading = false;
-  CatalogProvider? _provider;
+  CatalogListProvider? _provider;
   CatalogItem? item;
 
   @override
@@ -85,7 +86,7 @@ _linkImage() {
         item?.urlImage = _urlImageController.text;
     }
 
-    _provider?.saveItem(item!);
+    CatalogApi.saveItem(item!);
     _provider?.cleanList();
     _provider?.fetchNext();
     Navigator.pop(context);
@@ -95,7 +96,7 @@ _linkImage() {
   @override
   Widget build(BuildContext context) {
 
-    _provider = context.watch<CatalogProvider>();
+    _provider = context.watch<CatalogListProvider>();
 
     return FutureBuilder<CatalogItem>(
         future: _getData(),
@@ -110,7 +111,8 @@ _linkImage() {
               _urlImageController.text = it.urlImage!;
             }
 
-            return Scaffold(appBar: _getAppBar(),
+            return Scaffold(
+              appBar: _getAppBar(),
               body: _form(),
             );
           }
@@ -139,7 +141,7 @@ _linkImage() {
 
   _formField( TextEditingController textEditingController, String hintText) {
     var decorator = InputDecoration(
-      hintText: hintText,
+      labelText: hintText,
       errorBorder: UnderlineInputBorder(
         borderRadius: BorderRadius.circular(6.0),
         borderSide: BorderSide(
@@ -149,6 +151,7 @@ _linkImage() {
     );
 
     return TextFormField(
+
         controller: textEditingController,
         decoration: decorator,);
 

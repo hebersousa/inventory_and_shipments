@@ -1,4 +1,5 @@
 
+import 'package:intl/intl.dart';
 
 class Utils {
 
@@ -18,6 +19,11 @@ class Utils {
       return [ name,
         ...?generateKeybyString(name.substring(0, name.length - 1).toLowerCase())
       ];
+  }
+
+  static formatToDate(DateTime date){
+    final DateFormat format = DateFormat('yyyy-MM-dd');
+    return format.format(date);
   }
 
 }

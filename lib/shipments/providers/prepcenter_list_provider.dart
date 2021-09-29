@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:ias/catalog/api/catalog_api.dart';
-import 'package:ias/catalog/models/catalog_item.dart';
+import 'package:ias/shipments/api/prepcenter_api.dart';
+import 'package:ias/shipments/models/prepcenter.dart';
+import 'package:ias/shipments/models/shipment.dart';
+import 'package:flutter/cupertino.dart';
 
-class CatalogProvider extends ChangeNotifier {
+class PrepcenterListProvider extends ChangeNotifier {
 
-  final _catalogSnapshot = <DocumentSnapshot>[];
+  final _prepcenterSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
   int documentLimit = 10;
   bool _hasNext = true;
@@ -15,6 +17,7 @@ class CatalogProvider extends ChangeNotifier {
   TextEditingController _editingController =TextEditingController();
   int _lastTypeTime= 0;
   String _oldSearch = "";
+  Prepcenter? prepcenterItemSelected;
 
   String get errorMessage => _errorMessage;
 
@@ -32,39 +35,36 @@ class CatalogProvider extends ChangeNotifier {
 
   void cleanList() {
     _hasNext = true;
-    _catalogSnapshot.clear();
+    _prepcenterSnapshot.clear();
     notifyListeners();
   }
 
 
-  CatalogProvider() {
+  PrepcenterListProvider() {
 
     _editingController.addListener(() {
 
       if(_editingController.text != _oldSearch )
-          updateText();
+        updateText();
       _oldSearch = _editingController.text;
     });
   }
 
 
   Future updateText() async {
-    //_isFetching = true;
-      var search = _editingController.text.toLowerCase();
-      if( search.length !=1 ) {
-        cleanList();
-        await Future.delayed(Duration(seconds: 1));
-        if (search == _editingController.text.toLowerCase()) {
-            fetchNext();
-            print('text $search');
+    var search = _editingController.text.toLowerCase();
+    if( search.length !=1 ) {
+      cleanList();
+      await Future.delayed(Duration(seconds: 1));
+      if (search == _editingController.text.toLowerCase()) {
+        fetchNext();
+        //print('text $search');
       }
     }
   }
 
-  List<CatalogItem> get catalogItems => _catalogSnapshot.map((snap) {
-    //Map<String, dynamic> data = snap.data()! as Map<String, dynamic>;
-    //return CatalogItem.fromJson(data);
-    return CatalogItem.fromFirebase(snap);
+  List<Prepcenter> get prepcenterItems => _prepcenterSnapshot.map((snap) {
+    return Prepcenter.fromFirebase(snap);
   }).toList();
 
   Future fetchNext() async {
@@ -78,17 +78,17 @@ class CatalogProvider extends ChangeNotifier {
       if(_hasNext){
 
         var search = _editingController.text.toLowerCase();
-        final snap = await CatalogApi.getCatalog(
-          documentLimit,
-          startAfter: _catalogSnapshot.isNotEmpty ? _catalogSnapshot.last : null,
-          search: search.isNotEmpty ? search : null
+        final snap = await PrepcenterApi.getPrepcenter(
+            documentLimit,
+            startAfter: _prepcenterSnapshot.isNotEmpty ? _prepcenterSnapshot.last : null,
+            search: search.isNotEmpty ? search : null
         );
         print('OUT: '+ search+ ' size ${snap.docs.length }');
-        _catalogSnapshot.addAll(snap.docs);
+        _prepcenterSnapshot.addAll(snap.docs);
 
         if (snap.docs.length < documentLimit) _hasNext = false;
-    }
-        notifyListeners();
+      }
+      notifyListeners();
     } catch (error) {
       _errorMessage = error.toString();
       notifyListeners();
@@ -97,19 +97,20 @@ class CatalogProvider extends ChangeNotifier {
     _isFetching = false;
   }
 
-  Future<void> saveItem(CatalogItem item) async {
 
-    var catalogRef = FirebaseFirestore.instance.collection('catalog').withConverter<CatalogItem>(
-      fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
-      toFirestore: (catalogItem, _) => catalogItem.toJson(),
+  Future<void> saveItem(Prepcenter item) async {
+
+    var prepRef = FirebaseFirestore.instance.collection('prepcenter').withConverter<Prepcenter>(
+      fromFirestore: (snapshot, _) => Prepcenter.fromJson(snapshot.data()!),
+      toFirestore: (prepcenter, _) => prepcenter.toJson(),
     );
 
     if(item.key != null ) {
-      await catalogRef.doc(item.key).set(item,
+      await prepRef.doc(item.key).set(item,
         SetOptions(merge: true),
       );
     } else {
-      await catalogRef.add(item);
+      await prepRef.add(item);
     }
 
     notifyListeners();

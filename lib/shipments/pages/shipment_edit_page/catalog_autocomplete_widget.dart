@@ -1,9 +1,10 @@
-import 'package:chips_input/chips_input.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ias/catalog/models/catalog_item.dart';
-import 'package:ias/catalog/providers/catalog_provider.dart';
+import 'package:ias/catalog/providers/catalog_list_provider.dart';
+import 'package:ias/shipments/providers/catalog_chips_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -20,10 +21,12 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
   var _chips = <CatalogItem>[];
+  CatalogChipsProvider? _chipsProvider;
   int MAX_CHIPS = 1;
 
   @override
   void initState() {
+    _chipsProvider = context.read<CatalogChipsProvider>();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
 
@@ -38,11 +41,11 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
   _removeOverlay() {
     if(_overlayEntry!= null && _overlayEntry!.mounted)
     this._overlayEntry?.remove();
-
   }
 
-  _insertOverlay(){
-    if(_chips.length < MAX_CHIPS){
+  _insertOverlay() {
+    var list =_chipsProvider?.list;
+    if(list != null && list.length < MAX_CHIPS) {
         this._overlayEntry = this._createOverlayEntry();
         Overlay.of(context)?.insert(this._overlayEntry!);
     }
@@ -52,12 +55,12 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
   OverlayEntry _createOverlayEntry() {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var size = renderBox.size;
-    final valueProvider = Provider.of<CatalogProvider>(context, listen: false);
+    final listProvider = Provider.of<CatalogListProvider>(context, listen: false);
 
     return  OverlayEntry(
         builder: (context) =>
-        ChangeNotifierProvider<CatalogProvider>.value(
-          value: valueProvider,
+        ChangeNotifierProvider<CatalogListProvider>.value(
+          value: listProvider,
           child:  Positioned(
                   width: size.width,
                   child: CompositedTransformFollower(
@@ -76,7 +79,7 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
   }
 
   _optionsListView() {
-    return Consumer<CatalogProvider>(
+    return Consumer<CatalogListProvider>(
         builder: (context, provider, _) {
           return Container(
             height: 200,
@@ -85,7 +88,7 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
               itemBuilder: (context,index) {
                 var itens = provider.catalogItems;
                 if(index < itens.length)
-                  return _createOptionItem(itens[index], provider);
+                  return _optionItem(itens[index], provider);
 
                 if(index == itens.length)
                   if(provider.hasNext) {
@@ -100,15 +103,17 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
     );
   }
 
-  _createOptionItem(CatalogItem e, CatalogProvider provider){
+  _optionItem(CatalogItem e, CatalogListProvider provider){
     return ListTile(
           onTap: () {
             FocusScope.of(context).unfocus();
             provider.editingController.text="";
-            setState(() {
-              _chips.add(e);
-            });
+            _chipsProvider?.add(e);
 
+            //setState(() {
+              //_chips.add(e);
+             // provider.catalogItemSelected = e;
+           // });
             },
           key: ObjectKey(e),
           leading: CircleAvatar(
@@ -140,15 +145,17 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
 
   _catalogField(){
 
-    return  Consumer<CatalogProvider>(builder: (context, provider, _) {
+    return  Consumer<CatalogListProvider>(builder: (context, provider, _) {
      // provider.editingController.text = '\u200B';
       return Container(
         decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.black12,width: 2))
         ),
-        child: Row(children: [
+        child: Row(
+          children: [
           Text("Item: ", style: TextStyle(color:Colors.grey.shade600 ),),
-          ..._chips.map((e) => _chip(e)).toList(),
+          //..._chips.map((e) => _chip(e)).toList(),
+          _chipsStreaming(),
           Flexible(
             child: TextFormField(
               controller: provider.editingController,
@@ -164,14 +171,31 @@ class _CatalogAutocompleteWidgetState extends State<CatalogAutocompleteWidget> {
     });
   }
 
-  _chip(CatalogItem item){
+  _chip(CatalogItem item) {
     return InputChip(
         label: Text(item.shortTitle!),
-
-        onDeleted: ()=> setState(() {
+        onDeleted: (){
           FocusScope.of(context).unfocus();
-          _chips.remove(item);
-        }),
+          _chipsProvider?.remove(item);
+          //setState(() {
+            //_chips.remove(item);
+          //});
+        }
     );
+  }
+
+  _chipsStreaming(){
+    return StreamBuilder<List<CatalogItem>>(
+      initialData:[],
+      stream: _chipsProvider?.stream ,
+    builder: (context, snapshot){
+
+        List<CatalogItem> items =[];
+        if(snapshot.hasData){
+          items = snapshot.data!;
+        }
+        return Row(children: items.map((e) => _chip(e))
+            .toList().cast<InputChip>());
+    },);
   }
 }

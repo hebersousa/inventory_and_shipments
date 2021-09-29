@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ias/catalog/pages/catalog_edit_page.dart';
 import 'package:ias/catalog/pages/catalog_list_page/catalog_header_widget.dart';
 import 'package:ias/catalog/pages/catalog_list_page/catalog_listview_widget.dart';
-import 'package:ias/catalog/providers/catalog_provider.dart';
+import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -30,7 +30,7 @@ class CatalogListPage2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-    create: (context) => CatalogProvider(),
+    create: (context) => CatalogListProvider(),
     builder:(context, child) =>  _scafold(context),
   );
 
@@ -50,11 +50,11 @@ class CatalogListPage2 extends StatelessWidget {
 
 
 _goToNew(BuildContext context,[var id]) {
-  final value2 = Provider.of<CatalogProvider>(context, listen: false);
+  final value2 = Provider.of<CatalogListProvider>(context, listen: false);
   //final value = context.watch<CatalogProvider>();
   Navigator.of(context).push(
     MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider<CatalogProvider>
+        builder: (context) => ChangeNotifierProvider<CatalogListProvider>
             .value(value: value2,
             child: CatalogEditPage(id: id) ,)
     ),

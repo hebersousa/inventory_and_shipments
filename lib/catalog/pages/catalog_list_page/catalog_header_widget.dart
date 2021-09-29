@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ias/catalog/pages/catalog_list_page/catalog_listview_widget.dart';
-import 'package:ias/catalog/providers/catalog_provider.dart';
+import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -14,11 +14,11 @@ class _CatalogHeaderWidgetState extends State<CatalogHeaderWidget> {
 
   @override
   Widget build(BuildContext context) =>
-      Consumer<CatalogProvider>(builder:(context, provider, _) =>
+      Consumer<CatalogListProvider>(builder:(context, provider, _) =>
         _buscaField(provider)
   );
 
-  Widget _buscaField(CatalogProvider provider) {
+  Widget _buscaField(CatalogListProvider provider) {
 
     _editingController = provider.editingController;
 
