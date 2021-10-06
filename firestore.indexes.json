@@ -1,0 +1,31 @@
+{
+  "indexes": [
+    {
+      "collectionId": "catalog",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "mode": "ARRAY_CONTAINS"
+        },
+        {
+          "fieldPath": "count",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionId": "prepcenter",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "mode": "ARRAY_CONTAINS"
+        },
+        {
+          "fieldPath": "name",
+          "mode": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

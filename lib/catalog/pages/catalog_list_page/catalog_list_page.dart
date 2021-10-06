@@ -6,7 +6,7 @@ import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:provider/provider.dart';
 
 
-class CatalogListPage2 extends StatelessWidget {
+class CatalogListPage extends StatelessWidget {
 
   _createAppBar(BuildContext context) {
     var addButton = IconButton(
@@ -15,7 +15,7 @@ class CatalogListPage2 extends StatelessWidget {
         onPressed: ()=> _goToNew(context)
     );
 
-    var title = Text('Catalog', style: TextStyle(color: Colors.white),);
+    var title = Text('Prepcenter Inventory', style: TextStyle(color: Colors.white),);
 
     var menuButton = IconButton(
       color: Colors.white,

@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ias/catalog/api/catalog_api.dart';
 import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import '../models/catalog_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,14 +28,15 @@ class _CatalogEditPageState extends State<CatalogEditPage> {
   final _titleController = TextEditingController();
   final _shortTitleController = TextEditingController();
   final _urlImageController = TextEditingController();
-  late var _streamController = StreamController<String>();
+  final _resourceLinksFieldController = TextEditingController();
+  final _countController = TextEditingController();
+  late var _streamController = BehaviorSubject<String>();
   bool _loading = false;
   CatalogListProvider? _provider;
   CatalogItem? item;
 
   @override
   void initState() {
-
     _asinController.addListener(() {
       _streamController.add(_asinController.text);
     });
@@ -78,15 +82,19 @@ _linkImage() {
        item = CatalogItem(asin: _asinController.text,
           title: _titleController.text,
           shortTitle: _shortTitleController.text,
-          urlImage: _urlImageController.text );
+          urlImage: _urlImageController.text,
+          urlResource: _resourceLinksFieldController.text,
+          count: int.parse(_countController.text));
     else {
         item?.asin = _asinController.text;
         item?.title = _titleController.text;
         item?.shortTitle = _shortTitleController.text;
         item?.urlImage = _urlImageController.text;
+        item?.count =  int.parse(_countController.text);
+        item?.urlResource = _resourceLinksFieldController.text;
     }
 
-    CatalogApi.saveItem(item!);
+    await CatalogApi.saveItem(item!);
     _provider?.cleanList();
     _provider?.fetchNext();
     Navigator.pop(context);
@@ -109,15 +117,21 @@ _linkImage() {
               _titleController.text = it.title!;
               _shortTitleController.text = it.shortTitle!;
               _urlImageController.text = it.urlImage!;
+              if(it.urlResource!=null)
+                _resourceLinksFieldController.text = it.urlResource.toString();
+              if(it.count != null)
+                _countController.text = it.count.toString();
+              else
+                _countController.text = "0";
             }
-
-            return Scaffold(
-              appBar: _getAppBar(),
-              body: _form(),
-            );
           }
 
-        return Center(child: CircularProgressIndicator());
+          return Scaffold(
+            appBar: _getAppBar(),
+            body: SingleChildScrollView(child: _form(),),
+          );
+
+        //return Center(child: CupertinoActivityIndicator());
 
     });
 
@@ -127,7 +141,7 @@ _linkImage() {
     var title = Text("Catalog Item", style: TextStyle(color: Colors.white));
     var backBt = BackButton(onPressed: ()=>Navigator.pop(context),
       color: Colors.white,);
-    var saveBt = TextButton(onPressed: ()=> _salvar2(),
+    var saveBt = _loading ? progressIcon :TextButton(onPressed: ()=> _salvar2(),
         child: Text("Save", style: TextStyle(color: Colors.white),)
     );
 
@@ -138,9 +152,27 @@ _linkImage() {
     );
   }
 
+  var progressIcon = Container(
+    margin: EdgeInsets.all(15),
+    height: 10,width: 20,
+    // child: CircularProgressIndicator(color: Colors.white,)
+    child: CupertinoActivityIndicator(),
+  );
 
-  _formField( TextEditingController textEditingController, String hintText) {
+
+  _countField() {
+    return Container(
+      child: TextField(controller: _countController,
+        decoration: InputDecoration(labelText: 'Number of Items',),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+    );
+  }
+
+  _formField( TextEditingController textEditingController, String hintText, [Function? onTap]) {
     var decorator = InputDecoration(
+      suffix: onTap!=null ? OutlinedButton(onPressed: ()=>onTap(), child: Text("Add")) : null,
       labelText: hintText,
       errorBorder: UnderlineInputBorder(
         borderRadius: BorderRadius.circular(6.0),
@@ -151,26 +183,29 @@ _linkImage() {
     );
 
     return TextFormField(
-
         controller: textEditingController,
         decoration: decorator,);
 
   }
+
+
 
   _form(){
     return Form(
       key: _formKey,
       child: Padding(padding: const EdgeInsets.all(20),
       child: Column( children: [
-        _loading ? CircularProgressIndicator() : Container(),
         _linkImage(),
         _formField(_asinController, "ASIN"),
         _formField(_titleController, "Title"),
         _formField(_shortTitleController, "Short Title"),
-        _formField(_urlImageController, "URL Image")
+        _formField(_urlImageController, "URL Image"),
+        _countField(),
+        _formField(_resourceLinksFieldController,"Resource Link")
 
       ],),),
     );
 
   }
+
 }

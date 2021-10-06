@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +51,7 @@ class _LoginPage2State extends State<Login2Page> {
       FocusNode focusNode, String hintText, Function(String?) validator,
       [bool obscureText = false]) {
 
-
+   // textEditingController.text = obscureText ? 'masukan':'hebersousa@gmail.com';
     return  TextFormField(
 
         controller: textEditingController,
@@ -166,7 +168,8 @@ class _LoginPage2State extends State<Login2Page> {
                             children: [
                               _button("Sign In", _login),
                               SizedBox(width: 24.0),
-                              _button("Register", _goRegister ),
+                              _button("Register", _goRegister
+                              ),
 
                             ],
                           )
@@ -179,4 +182,6 @@ class _LoginPage2State extends State<Login2Page> {
       ),
     );
   }
+
+
 }

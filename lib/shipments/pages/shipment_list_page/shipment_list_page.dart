@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/base_provider.dart';
 import 'package:ias/shipments/api/prepcenter_api.dart';
 import 'package:ias/shipments/models/address.dart';
 import 'package:ias/shipments/models/prepcenter.dart';
@@ -9,7 +8,9 @@ import 'package:ias/shipments/pages/shipment_edit_page/shipment_edit_page.dart';
 import 'package:ias/shipments/pages/shipment_list_page/shipment_listview_widget.dart';
 import 'package:ias/shipments/providers/prepcenter_list_provider.dart';
 import 'package:ias/shipments/providers/shipment_list_provider.dart';
+import 'package:ias/utils.dart';
 import 'package:provider/provider.dart';
+
 
 class ShipmentListPage extends StatefulWidget {
   @override
@@ -45,11 +46,44 @@ class _ShipmentListPageState extends State<ShipmentListPage> {
     builder:(context, child) =>  _scafold(context),
   );
 
+
   _scafold(BuildContext context) {
     return Scaffold(
       appBar: _createAppBar(context),
-      body: ShipmentListviewWidget(),
+      body:    ShipmentListviewWidget(),
+
+
     );
+  }
+
+  void _onRefresh() async{
+    // monitor network fetch
+   // await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+
+  }
+
+
+  _slivesListView(Widget listView) {
+
+    return CustomScrollView(
+      slivers: [
+
+        SliverList(
+            delegate: SliverChildListDelegate([
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      child: listView,
+                    ),
+                  ],
+                ),
+              )
+            ]))
+      ],
+    );
+
   }
 
   _addPrepcenterItem(){

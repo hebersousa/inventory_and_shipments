@@ -9,19 +9,21 @@ class Shipment {
 
   int count =0;
   String? key;
-  DateTime? shipDate;
-  DateTime? deliverDate;
-  List<String>? trackers;
+  DateTime? shippingDate;
+  DateTime? deliveryDate;
+  DateTime? createdAt;
+  DateTime? purchaseDate;
+  List<String>? tracks;
   double? priceAvg;
   Prepcenter? prepcenter;
   CatalogItem? catalogItem;
-  DateTime? createdAt;
+
   String? type;
 
  _test() {}
 
-  Shipment({this.shipDate, this.deliverDate, this.priceAvg, this.catalogItem,
-  this.prepcenter, required this.count, this.type});
+  Shipment({this.shippingDate, this.deliveryDate,this.purchaseDate, this.priceAvg, this.catalogItem,
+  this.prepcenter, required this.count, this.type, this.tracks});
 
   factory Shipment.fromFirebase(DocumentSnapshot document) {
     var data = document.data()! as Map<String, dynamic>;
@@ -34,9 +36,18 @@ class Shipment {
   Shipment.fromJson(Map<String, dynamic> json):
       //shipDate = DateTime.parse(json['ship_date']),
         //shipDate = json['ship_date'],
-        shipDate = json.containsKey('ship_date') &&
-            json['ship_date'].runtimeType == Timestamp ?
-        json['ship_date'].toDate() : null,
+
+        shippingDate = json.containsKey('shipping_date') &&
+            json['shipping_date'].runtimeType == Timestamp ?
+        json['shipping_date'].toDate() : null,
+
+        deliveryDate = json.containsKey('delivery_date') &&
+            json['delivery_date'].runtimeType == Timestamp ?
+        json['delivery_date'].toDate() : null,
+
+        purchaseDate = json.containsKey('purchase_date') &&
+            json['purchase_date'].runtimeType == Timestamp ?
+        json['purchase_date'].toDate() : null,
 
       //deliverDate = DateTime.parse(json['deliver_date']),
       //deliverDate = json['deliver_date'],
@@ -48,17 +59,24 @@ class Shipment {
       catalogItem = json['catalog'] != null ?
           CatalogItem.fromJson(json['catalog']) : null,
       //prepcenter = Prepcenter.fromJson(json['prepcenter']),
+
+      tracks = json.containsKey('tracks') && json['tracks']!=null ?
+      json['tracks'].toList().cast<String>() : null,
+
       type = json['type'];
 
+
   Map<String, dynamic>  toJson() => {
-    if(shipDate!=null) 'ship_date' : shipDate,
-    if(deliverDate!=null) 'deliver_date':deliverDate,
+    if(shippingDate!=null) 'shipping_date' : shippingDate,
+    if(deliveryDate!=null) 'delivery_date':deliveryDate,
+    if(purchaseDate!=null) 'purchase_date':purchaseDate,
+    if(createdAt!=null) 'created_at':createdAt,
     'count':count,
     if(priceAvg!=null)'price_avg':priceAvg,
     if(prepcenter!=null)'prepcenter':prepcenter?.toJson(),
     if(catalogItem!=null)'catalog':catalogItem?.toJson(),
-    if(createdAt!=null) 'created_at':createdAt,
-    if(type!=null) 'type':type
+    if(type!=null) 'type':type,
+    if(tracks!=null)'tracks':tracks
   };
 
 }

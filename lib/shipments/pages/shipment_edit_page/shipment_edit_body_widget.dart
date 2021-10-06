@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ias/catalog/models/catalog_item.dart';
@@ -12,6 +13,7 @@ import 'package:ias/shipments/models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/catalog_autocomplete_widget.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/prepcenter_autocomplete_widget.dart';
+import 'package:ias/shipments/pages/shipment_edit_page/track_chips_widget.dart';
 import 'package:ias/shipments/providers/catalog_chips_provider.dart';
 import 'package:ias/shipments/providers/prepcenter_chips_provider.dart';
 import 'package:ias/shipments/providers/shipment_list_provider.dart';
@@ -33,10 +35,12 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
 
   final _formKey = GlobalKey<FormState>();
   final _countController = TextEditingController();
-  final _shipingDateController = TextEditingController();
-  final _deliverDateController = TextEditingController();
+  final _shippingDateController = TextEditingController();
+  final _deliveryDateController = TextEditingController();
+  final _purchaseDateController = TextEditingController();
 
   final _destinationStreamController = BehaviorSubject<List<bool>>();
+  final _trackChipsController = BehaviorSubject<List<String>>();
 
 
   bool _loading = true;
@@ -46,6 +50,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
   @override
   void initState() {
     _destinationStreamController.add([false,false]);
+    _trackChipsController.add([]);
     super.initState();
   }
   @override
@@ -74,7 +79,8 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
     var progress = Container(
       margin: EdgeInsets.all(15),
         height: 10,width: 20,
-        child: CircularProgressIndicator(color: Colors.white,)
+       // child: CircularProgressIndicator(color: Colors.white,)
+      child: CupertinoActivityIndicator(),
     );
 
     var saveBt = _loading ? progress
@@ -89,6 +95,12 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
     );
   }
 
+  void _onRefresh() async{
+    // monitor network fetch
+    // await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -97,60 +109,84 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
     return FutureBuilder<Shipment>(
         future: _getData(),
         builder: (context, snapshot){
-
           if(snapshot.connectionState ==  ConnectionState.done) {
-            if(snapshot.hasData && snapshot.data != null){
+            if(snapshot.hasData && snapshot.data != null) {
               var it =snapshot.data!;
               item = it;
-              if(it.count != null)
-                  _countController.text = it.count.toString();
-              if(it.shipDate != null)
-                  _shipingDateController.text = Utils.formatToDate(it.shipDate!);
-              if(it.deliverDate != null)
-                  _deliverDateController.text = Utils.formatToDate(it.deliverDate!);
-
-             var catalogChipsProvider = context.read<CatalogChipsProvider>();
-              if(it.catalogItem!= null && catalogChipsProvider.list.isEmpty)
-                  context.read<CatalogChipsProvider>().add(it.catalogItem!);
-
-              var prepcenterChipsProvider = context.read<PrepcenterChipsProvider>();
-              if(it.prepcenter!= null && prepcenterChipsProvider.list.isEmpty)
-                context.read<PrepcenterChipsProvider>().add(it.prepcenter!);
-
-              if(it.type!= null && it.type!.contains("PREP"))
-                _destinationStreamController.add([true,false]);
-              else if(it.type!= null && it.type!.contains("AMZ"))
-                _destinationStreamController.add([false,true]);
-              else
-                _destinationStreamController.add([false,false]);
-
+              _loadFields(it);
+            } else {
+              _purchaseDateController.text = Utils.formatToDate(DateTime.now());
             }
-
           }
+
           return Scaffold(
             appBar: _getAppBar(),
-            body: _form(),
+            body: SingleChildScrollView(child: _form(),),
           );
 
         //  return Center(child: CircularProgressIndicator());
 
         });
+  }
 
+  _loadFields(Shipment shipment) {
+
+          if(shipment.count != null)
+            _countController.text = shipment.count.toString();
+          if(shipment.shippingDate != null)
+            _shippingDateController.text = Utils.formatToDate(shipment.shippingDate!);
+
+          if(shipment.deliveryDate != null)
+            _deliveryDateController.text = Utils.formatToDate(shipment.deliveryDate!);
+
+          if(shipment.purchaseDate != null)
+            _purchaseDateController.text = Utils.formatToDate(shipment.purchaseDate!);
+          else
+            _purchaseDateController.text = Utils.formatToDate(DateTime.now());
+
+          var catalogChipsProvider = context.read<CatalogChipsProvider>();
+          if(shipment.catalogItem!= null && catalogChipsProvider.list.isEmpty)
+            context.read<CatalogChipsProvider>().add(shipment.catalogItem!);
+
+          var prepcenterChipsProvider = context.read<PrepcenterChipsProvider>();
+          if(shipment.prepcenter!= null && prepcenterChipsProvider.list.isEmpty)
+            context.read<PrepcenterChipsProvider>().add(shipment.prepcenter!);
+
+          if(shipment.tracks != null)
+            _trackChipsController.add(shipment.tracks!);
+
+          if(shipment.type!= null && shipment.type!.contains("PREP"))
+            _destinationStreamController.add([true,false]);
+          else if(shipment.type!= null && shipment.type!.contains("AMZ"))
+            _destinationStreamController.add([false,true]);
+          else
+            _destinationStreamController.add([false,false]);
   }
 
   _form() {
-    return Padding(padding: EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _destinationButtons(),
-          PrepcenterAutocompleteWidget(),
-          CatalogAutocompleteWidget(),
-          _calendarField(_shipingDateController, "Shipping Date"),
-          _calendarField(_deliverDateController, "Deliver Date"),
-          _countField(),
+    return  StreamBuilder<List<bool>>(
+        stream:  _destinationStreamController.stream,
+        builder: (context,snapshot) {
 
-        ],),
+         return Padding(padding: EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _destinationButtons(),
+                PrepcenterAutocompleteWidget(),
+                CatalogAutocompleteWidget(),
+                if(_getDestinationOption() == "PREP")
+                    _calendarField(_purchaseDateController, "Purchase Date"),
+                _calendarField(_shippingDateController, "Shipping Date"),
+                if(_getDestinationOption() == "PREP")
+                    _calendarField(_deliveryDateController, "Deliver Date"),
+                _countField(),
+                if(_getDestinationOption() == "PREP")
+                  TrackChipsWidget(streamController: _trackChipsController)
+
+              ],),
+          );
+        }
     );
   }
 
@@ -164,6 +200,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
       ),
     );
   }
+
 
   _calendarField(TextEditingController textEditing, String hintText ){
     return Row(
@@ -220,9 +257,11 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
                 ],
                 isSelected: destinationOptions!,
                 onPressed: (index) {
+
                   var selected = [false,false];
                   selected[index] = true;
                   _destinationStreamController.add(selected);
+
                 },
 
               ),
@@ -244,41 +283,82 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
   }
 
   _saveShipment() async {
-      setState(() => _loading = true );
-      var catalogChipProvider = Provider.of<CatalogChipsProvider>(context,listen: false) ;
-      var catalogItem =  catalogChipProvider.list.first;
 
-      var prepcenterChipProvider = Provider.of<PrepcenterChipsProvider>(context,listen: false) ;
-      var prepItem =  prepcenterChipProvider.list.first;
+    if(_validateForm()) {
+      setState(() => _loading = true);
+      var catalogChipProvider = Provider.of<CatalogChipsProvider>(
+          context, listen: false);
+      var catalogItem = catalogChipProvider.list.first;
+
+      var prepcenterChipProvider = Provider.of<PrepcenterChipsProvider>(
+          context, listen: false);
+      var prepItem = prepcenterChipProvider.list.first;
+
+      var urlTracks = _trackChipsController.value;
 
       if (item == null) {
         item = Shipment(
             count: int.parse(_countController.text),
-            shipDate: DateTime.tryParse(_shipingDateController.text),
-            deliverDate: DateTime.tryParse(_deliverDateController.text),
+            shippingDate: DateTime.tryParse(_shippingDateController.text),
+            deliveryDate: DateTime.tryParse(_deliveryDateController.text),
+            purchaseDate: DateTime.tryParse(_purchaseDateController.text),
             catalogItem: CatalogItem.fromJson(catalogItem.toSimpleJson()),
             prepcenter: Prepcenter.fromJson(prepItem.toSimpleJson()),
-            type:  _getDestinationOption()
+            tracks: urlTracks ,
+            type: _getDestinationOption()
         );
       } else {
         item?.count = int.parse(_countController.text);
-        item?.shipDate = DateTime.tryParse(_shipingDateController.text);
-        item?.deliverDate = DateTime.tryParse(_deliverDateController.text);
+        item?.shippingDate = DateTime.tryParse(_shippingDateController.text);
+        item?.deliveryDate = DateTime.tryParse(_deliveryDateController.text);
+        item?.purchaseDate = DateTime.tryParse(_purchaseDateController.text);
         item?.catalogItem =
             CatalogItem.fromJson(catalogItem.toSimpleJson());
         item?.prepcenter =
             Prepcenter.fromJson(prepItem.toSimpleJson());
-        item?.type =  _getDestinationOption();
-
+        item?.type = _getDestinationOption();
+        item?.tracks = urlTracks;
       }
 
       await ShipmentApi.saveItem(item!);
       _shipListProvider?.cleanList();
       _shipListProvider?.fetchNext();
       Navigator.of(context).pop();
+    }
 
   }
 
+  bool _validateForm() {
+
+    if(!_destinationStreamController.value.any((element){
+
+      return element;
+    } )){
+      Utils.showAlertDialog(context, "Please choice a destination.");
+      return false;
+    }
+
+    var prepcenterChipProvider = Provider.of<PrepcenterChipsProvider>(
+        context, listen: false);
+    if(prepcenterChipProvider.list.length <= 0) {
+      Utils.showAlertDialog(context, "Please choice a prepcenter.");
+      return false;
+    }
+
+    var catalogChipProvider = Provider.of<CatalogChipsProvider>(
+        context, listen: false);
+    if(catalogChipProvider.list.length <= 0) {
+      Utils.showAlertDialog(context, "Please choice a catalog item");
+      return false;
+    }
+
+    int? count = int.tryParse(_countController.text);
+    if(count==null || count < 1 ) {
+      Utils.showAlertDialog(context, "Please fill in the item number.");
+      return false;
+    }
+    return true;
+  }
 
   Future<DateTime> _selectDate(BuildContext context) async {
 

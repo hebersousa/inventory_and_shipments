@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/catalog/pages/catalog_list_page/catalog_list_page2.dart';
+import 'package:ias/catalog/pages/catalog_list_page/catalog_list_page.dart';
 import 'package:ias/login/profile_widget.dart';
 import 'package:ias/page_provider.dart';
 import 'package:ias/shipments/pages/shipment_list_page/shipment_list_page.dart';
@@ -20,9 +20,9 @@ class _MyDrawerWidgetState extends State<MyDrawerWidget> {
     return Drawer(
       child: ListView(children: [
         ProfileWidget(user: widget.user,),
-        ListTile(title: const Text('Catalog'),
+        ListTile(title: const Text('Prepcenter Inventory'),
             onTap: (){
-                provider.changePage(CatalogListPage2());
+                provider.changePage(CatalogListPage());
                 Navigator.pop(context);
             }
         ),

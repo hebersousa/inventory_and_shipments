@@ -27,7 +27,9 @@ class ShipmentApi {
   }
 
 
-
+  
+  
+  
   static Future<void> saveItem(Shipment item) async {
 
     var shipmentsRef = FirebaseFirestore.instance.collection('shipment').withConverter<Shipment>(
@@ -45,6 +47,12 @@ class ShipmentApi {
     }
 
     return Future.value();
+
+  }
+
+  static Future<void> removeItem(Shipment item) async {
+
+    await FirebaseFirestore.instance.collection("shipment").doc(item.key).delete();
 
   }
 }

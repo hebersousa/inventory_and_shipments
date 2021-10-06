@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/catalog/pages/catalog_list_page/catalog_list_page2.dart';
+import 'package:ias/catalog/pages/catalog_list_page/catalog_list_page.dart';
 import 'package:ias/collapsing_navigation_drawer/collapsing_navigation_drawer_widget.dart';
 import 'package:ias/my_drawer_widget.dart';
 import 'package:ias/page_provider.dart';

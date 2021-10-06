@@ -30,25 +30,25 @@ class CatalogItem  {
   String? title;
   String? shortTitle;
   String? urlImage;
+  int? count;
+  String? urlResource;
 
   CatalogItem({required this.asin,
     required this.title,
     this.shortTitle,
-    this.urlImage});
+    this.urlImage,
+    this.count,
+    this.urlResource});
 
   String get urlAmazon => 'http://www.amazon.com/dp/$asin';
 
-  CatalogItem.fromFirebase(DocumentSnapshot document){
+  factory CatalogItem.fromFirebase(DocumentSnapshot document){
 
     var data = document.data()! as Map<String, dynamic>;
-    key = document.id;
-    title  = data['title'];
-    asin = data['asin'];
-    shortTitle = data['shortTitle'];
-    urlImage = data['urlImage'];
-
+    var instance = CatalogItem.fromJson(data);
+    instance.key = document.id;
+    return instance;
   }
-
 
 
   CatalogItem.fromJson(Map<String, dynamic> json)
@@ -57,8 +57,11 @@ class CatalogItem  {
     title = json['title'] ,
     asin = json['asin'] ,
     shortTitle = json['shortTitle'],
-    urlImage = json['urlImage']
-  ;
+    urlImage = json['urlImage'],
+    urlResource = json['resourceLink'],
+    count = json['count'];
+
+
 
   Map<String, Object?> toJson() {
     return {
@@ -67,9 +70,12 @@ class CatalogItem  {
       'asin': asin,
       'shortTitle' : shortTitle,
       if(urlImage!=null) 'urlImage' : urlImage,
+      if(urlResource!=null) 'resourceLink' : urlResource,
       //'query' : '$asin $title $shortTitle'
+      'count' : count ?? 0 ,
       if(asin!=null && title!=null)
-        'keywords' : Utils.generateKeybyString(asin!) + Utils.generateKeybyArray(title?.split(' '))
+        'keywords' : Utils.generateKeybyString(asin!.trim()) + Utils.generateKeybyArray(title!.trim().split(' '))
+       // generateKeybyString e generateKeybyArray estava apresentando erro com strings terminadas em espaço. Por isso uso do trim()
     };
   }
 

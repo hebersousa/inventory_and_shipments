@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ias/catalog/models/catalog_item.dart';
+import 'package:ias/shipments/models/shipment.dart';
 
 
 class CatalogApi {
@@ -10,11 +11,11 @@ class CatalogApi {
       String? search
       }) async {
 
-      var termR = "Certainty66".split("");//.reversed.join("");
+      //var termR = "Certainty66".split("");//.reversed.join("");
 
       var refCatalog = FirebaseFirestore.instance
           .collection('catalog')
-          .orderBy('title')
+          .orderBy('count',descending: true)
           .limit(limit);
 
       if(search != null)
@@ -27,10 +28,11 @@ class CatalogApi {
       }
     }
 
+    @deprecated
+    static Future<void> oldSaveItem(CatalogItem item) async {
 
-    static Future<void> saveItem(CatalogItem item) async {
-
-      var catalogRef = FirebaseFirestore.instance.collection('catalog').withConverter<CatalogItem>(
+      var catalogRef = FirebaseFirestore.instance.collection('catalog')
+          .withConverter<CatalogItem>(
         fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
         toFirestore: (catalogItem, _) => catalogItem.toJson(),
       );
@@ -39,11 +41,62 @@ class CatalogApi {
         await catalogRef.doc(item.key).set(item,
           SetOptions(merge: true),
         );
+
       } else {
         await catalogRef.add(item);
       }
 
       return Future.value();
+
+    }
+
+
+    static Future<void> saveItem(CatalogItem catalogItem) async {
+
+      return FirebaseFirestore.instance.runTransaction((transaction) async {
+
+        var catalogRef = FirebaseFirestore.instance.collection('catalog')
+            .withConverter<CatalogItem>(
+          fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
+          toFirestore: (catalogItem, _) => catalogItem.toJson(),
+        );
+
+
+        if(catalogItem.key != null ) {
+          transaction.set(
+              catalogRef.doc(catalogItem.key),
+              catalogItem,
+              SetOptions(merge: true)
+          );
+
+          await _updateShipments(catalogItem, transaction);
+
+        } else {
+          await catalogRef.add(catalogItem);
+        }
+
+
+      } );
+
+    }
+
+
+    static Future<void> _updateShipments(CatalogItem catalog,
+        Transaction transaction) async{
+
+      var snapshot = await FirebaseFirestore.instance.collection('shipment')
+          .withConverter<Shipment>(
+        fromFirestore: (snapshot, _) => Shipment.fromJson(snapshot.data()!),
+        toFirestore: (shipment, _) => shipment.toJson(),
+      ).where("catalog.key", isEqualTo: catalog.key).get();
+
+      snapshot.docs.forEach((doc) {
+        var shipment = doc.data();
+        shipment.catalogItem = catalog;
+        transaction.set(doc.reference, shipment, SetOptions(merge: true) );
+      });
+
+      return Future<void>.value();
 
     }
 }
