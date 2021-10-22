@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/shipments/api/prepcenter_api.dart';
-import 'package:ias/shipments/models/address.dart';
-import 'package:ias/shipments/models/prepcenter.dart';
+import '../../../prepcenter/api/prepcenter_api.dart';
+import 'package:ias/prepcenter/models/address.dart';
+import 'package:ias/prepcenter/models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/shipment_edit_page.dart';
 import 'package:ias/shipments/pages/shipment_list_page/shipment_listview_widget.dart';
-import 'package:ias/shipments/providers/prepcenter_list_provider.dart';
+import 'package:ias/prepcenter/providers/prepcenter_list_provider.dart';
 import 'package:ias/shipments/providers/shipment_list_provider.dart';
 import 'package:ias/utils.dart';
 import 'package:provider/provider.dart';

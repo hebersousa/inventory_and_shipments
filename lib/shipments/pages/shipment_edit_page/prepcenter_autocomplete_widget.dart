@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ias/shipments/models/prepcenter.dart';
+import '../../../prepcenter/models/prepcenter.dart';
 import 'package:ias/shipments/providers/prepcenter_chips_provider.dart';
-import 'package:ias/shipments/providers/prepcenter_list_provider.dart';
+import 'package:ias/prepcenter/providers/prepcenter_list_provider.dart';
 import 'package:provider/provider.dart';
 
 

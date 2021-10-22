@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ias/catalog/pages/catalog_list_page/catalog_list_page.dart';
 import 'package:ias/login/profile_widget.dart';
 import 'package:ias/page_provider.dart';
+import 'prepcenter/pages/prepcenter_list_page.dart';
 import 'package:ias/shipments/pages/shipment_list_page/shipment_list_page.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +32,13 @@ class _MyDrawerWidgetState extends State<MyDrawerWidget> {
                 provider.changePage(ShipmentListPage(),);
                 Navigator.pop(context);
         }),
+        ListTile(title: const Text('Prepcenter Info'),
+            onTap: () {
+              provider.changePage(PrepcenterListPage(),);
+              Navigator.pop(context);
+            }),
+
+
 
       ],),
     );

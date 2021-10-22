@@ -17,7 +17,7 @@ class _TrackChipsWidgetState extends State<TrackChipsWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _formField(widget.textFieldController, "Url Track",()=> _addNewTrack()),
+        _formField(widget.textFieldController, "Url Tracking",()=> _addNewTrack()),
         _trackChipsWidget()
       ],
     );

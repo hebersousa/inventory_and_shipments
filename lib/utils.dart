@@ -22,6 +22,8 @@ class Utils {
       return [ name,
         ...?generateKeybyString(name.substring(0, name.length - 1).toLowerCase())
       ];
+    else
+      return [];
   }
 
   static formatToDate(DateTime date){
@@ -112,8 +114,8 @@ class Utils {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Alert"),
-      content: Text(message),
+      title: Text(message),
+      content: Container(),
       actions: [
         if(!yesNo) okButton,
         if(yesNo) yesButton,

@@ -9,7 +9,7 @@ import 'package:ias/catalog/models/catalog_item.dart';
 import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:ias/date_view.dart';
 import 'package:ias/shipments/api/shipment_api.dart';
-import 'package:ias/shipments/models/prepcenter.dart';
+import '../../../prepcenter/models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/catalog_autocomplete_widget.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/prepcenter_autocomplete_widget.dart';

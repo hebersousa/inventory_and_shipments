@@ -1,9 +1,8 @@
 
-import 'dart:core';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ias/shipments/models/address.dart';
 import 'package:ias/utils.dart';
+
+import 'address.dart';
 
 class Prepcenter {
 
@@ -35,7 +34,9 @@ class Prepcenter {
         name = json['name'],
         priceUnit =   json['price_unit']!=null ? json['price_unit'].toDouble() : null,
         pricePack = json['price_pack']!=null ? json['price_pack'].toDouble() : null,
-        balance = json['balance']!=null ? json['balance'].toDouble() : null,
+        balance = json['balance']!=null ? json['balance'].runtimeType == String ?
+        double.tryParse(json['balance']) :
+        json['balance'].toDouble() : null,
         address = json.containsKey('address') && json['address']!= null ?
         Address.fromJson(json['address']) : null;
 
@@ -45,7 +46,7 @@ class Prepcenter {
     'name' : name,
     if(priceUnit!=null )'price_unit':priceUnit,
     if(pricePack!=null ) 'price_pack':pricePack,
-    if(balance!=null ) 'balance':balance,
+    if(balance!=null ) 'balance':balance?.toDouble(),
     if(address!=null ) 'address':address?.toJson(),
     if(name!=null)
       'keywords' :  Utils.generateKeybyArray(name?.split(' '))

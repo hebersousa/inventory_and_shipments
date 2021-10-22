@@ -15,7 +15,9 @@ class DateView extends StatelessWidget {
       Column(mainAxisSize: MainAxisSize.min,
         children: [
           if(title!=null)Text(title!, style: TextStyle(fontSize: 10, color: Colors.grey.shade500),),
-          Row(children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             if(date!=null)
             Text(monthFormat.format(date!),style: TextStyle(fontSize: 14))
             else Text("Date",style: TextStyle(fontSize: 14,color: Colors.grey.shade500)),

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:ias/shipments/models/prepcenter.dart';
+import '../../prepcenter/models/prepcenter.dart';
 
 class PrepcenterChipsProvider {
 

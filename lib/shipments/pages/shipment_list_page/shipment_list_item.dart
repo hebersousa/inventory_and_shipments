@@ -26,14 +26,24 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
     return Column(children: [
       ListTile(
           onTap: ()=> func != null ?  func() : null,
-          leading:
-          _itemImage(catalog),
+           leading: _leading(widget.item!),
           title: _contentItem(widget.item!),
          // trailing: _getPopUpMenuTracks(widget.item!),
         trailing: widget.item != null ? _deleteButton(widget.item!):null,
       ),
       Divider()
     ],);
+  }
+
+  _leading(Shipment item) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text("${item.count.toString()} units"),
+        _destinyWidget(item.type),
+
+      ],
+    );
   }
 
   _deleteButton(Shipment shipment) => IconButton(icon: Icon(Icons.delete),
@@ -79,12 +89,12 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
       children: [
         Row(children: [
           if(catalog!=null) Text(catalog.shortTitle.toString()),
-          SizedBox(width: 10,),
-          Text( "· ${item.count.toString()} units"),
+          //SizedBox(width: 10,),
+      //  Text( "· ${item.count.toString()} units"),
         ],),
-        Row(children: [
-          _destinyWidget(item.type),
-          SizedBox(width: 10,),
+        Wrap(children: [
+          _itemImage(catalog),
+          //SizedBox(width: 10,),
           if(item.type=="PREP")
           DateView(date: item.purchaseDate,title: 'purchase',),
           SizedBox(width: 10,),
@@ -111,6 +121,7 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
       return Container();
     else
       return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
 
           if(type.contains("PREP"))

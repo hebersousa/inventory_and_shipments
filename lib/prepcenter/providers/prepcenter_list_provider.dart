@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:ias/shipments/api/prepcenter_api.dart';
-import 'package:ias/shipments/models/prepcenter.dart';
+import 'package:ias/prepcenter/api/prepcenter_api.dart';
+import '../models/prepcenter.dart';
 import 'package:ias/shipments/models/shipment.dart';
 import 'package:flutter/cupertino.dart';
 

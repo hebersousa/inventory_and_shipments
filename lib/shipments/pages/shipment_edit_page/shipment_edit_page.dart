@@ -4,7 +4,7 @@ import 'package:ias/catalog/providers/catalog_list_provider.dart';
 import 'package:ias/shipments/pages/shipment_edit_page/shipment_edit_body_widget.dart';
 import 'package:ias/shipments/providers/catalog_chips_provider.dart';
 import 'package:ias/shipments/providers/prepcenter_chips_provider.dart';
-import 'package:ias/shipments/providers/prepcenter_list_provider.dart';
+import 'package:ias/prepcenter/providers/prepcenter_list_provider.dart';
 import 'package:ias/shipments/providers/shipment_list_provider.dart';
 import 'package:provider/provider.dart';
 

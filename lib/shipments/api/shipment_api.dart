@@ -30,7 +30,7 @@ class ShipmentApi {
   
   
   
-  static Future<void> saveItem(Shipment item) async {
+  static Future<void> oldSaveItem(Shipment item) async {
 
     var shipmentsRef = FirebaseFirestore.instance.collection('shipment').withConverter<Shipment>(
       fromFirestore: (snapshot, _) => Shipment.fromJson(snapshot.data()!),
@@ -41,6 +41,7 @@ class ShipmentApi {
       await shipmentsRef.doc(item.key).set(item,
         SetOptions(merge: true),
       );
+
     } else {
       item.createdAt = DateTime.now();
       await shipmentsRef.add(item);
@@ -49,6 +50,63 @@ class ShipmentApi {
     return Future.value();
 
   }
+
+  static Future<void> saveItem(Shipment item) async {
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      var shipmentsRef = FirebaseFirestore.instance.collection('shipment').withConverter<Shipment>(
+        fromFirestore: (snapshot, _) => Shipment.fromJson(snapshot.data()!),
+        toFirestore: (shipment, _) => shipment.toJson(),
+      );
+
+      if(item.key != null ) {
+        transaction.set(
+            shipmentsRef.doc(item.key),
+            item,
+            SetOptions(merge: true)
+        );
+      } else {
+          item.createdAt = DateTime.now();
+          var newDocRef = shipmentsRef.doc();
+          transaction.set(newDocRef, item);
+         // await shipmentsRef.add(item);
+          await _updateCatalog(item, transaction);
+      }
+
+    } );
+  }
+
+
+  static Future<void> _updateCatalog(Shipment shipment, Transaction transaction) async {
+
+    var catalogRef = FirebaseFirestore.instance.collection('catalog')
+        .withConverter<CatalogItem>(
+      fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
+      toFirestore: (catalogItem, _) => catalogItem.toJson(),
+    );
+
+    var doc = await catalogRef.doc(shipment.catalogItem?.key).get();
+    CatalogItem? catalogItem = doc.data();
+
+    if(catalogItem != null) {
+      var currentCount = catalogItem.count ?? 0;
+
+      if(shipment.type=='PREP') {
+          catalogItem.count = currentCount + shipment.count;
+      } else if(shipment.type=='AMZ') {
+          catalogItem.count = currentCount - shipment.count;
+      }
+      transaction.set(
+          catalogRef.doc(catalogItem.key),
+          catalogItem,
+          SetOptions(merge: true)
+      );
+
+    }
+    return Future.value();
+  }
+
+
 
   static Future<void> removeItem(Shipment item) async {
 

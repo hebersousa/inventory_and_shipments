@@ -84,13 +84,13 @@ _linkImage() {
           shortTitle: _shortTitleController.text,
           urlImage: _urlImageController.text,
           urlResource: _resourceLinksFieldController.text,
-          count: int.parse(_countController.text));
+          count: int.tryParse(_countController.text) ?? 0);
     else {
         item?.asin = _asinController.text;
         item?.title = _titleController.text;
         item?.shortTitle = _shortTitleController.text;
         item?.urlImage = _urlImageController.text;
-        item?.count =  int.parse(_countController.text);
+        item?.count =  int.tryParse(_countController.text) ?? 0;
         item?.urlResource = _resourceLinksFieldController.text;
     }
 

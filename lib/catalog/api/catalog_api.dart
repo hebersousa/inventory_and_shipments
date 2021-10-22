@@ -55,24 +55,29 @@ class CatalogApi {
 
       return FirebaseFirestore.instance.runTransaction((transaction) async {
 
-        var catalogRef = FirebaseFirestore.instance.collection('catalog')
-            .withConverter<CatalogItem>(
-          fromFirestore: (snapshot, _) => CatalogItem.fromJson(snapshot.data()!),
-          toFirestore: (catalogItem, _) => catalogItem.toJson(),
-        );
-
-
-        if(catalogItem.key != null ) {
-          transaction.set(
-              catalogRef.doc(catalogItem.key),
-              catalogItem,
-              SetOptions(merge: true)
+        try {
+          var catalogRef = FirebaseFirestore.instance.collection('catalog')
+              .withConverter<CatalogItem>(
+            fromFirestore: (snapshot, _) =>
+                CatalogItem.fromJson(snapshot.data()!),
+            toFirestore: (catalogItem, _) => catalogItem.toJson(),
           );
 
-          await _updateShipments(catalogItem, transaction);
 
-        } else {
-          await catalogRef.add(catalogItem);
+          if (catalogItem.key != null) {
+            transaction.set(
+                catalogRef.doc(catalogItem.key),
+                catalogItem,
+                SetOptions(merge: true)
+            );
+
+            await _updateShipments(catalogItem, transaction);
+          } else {
+            await catalogRef.add(catalogItem);
+          }
+        }catch(e){
+
+          print(e);
         }
 
 

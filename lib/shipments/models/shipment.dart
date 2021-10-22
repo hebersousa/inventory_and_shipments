@@ -3,7 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ias/catalog/models/catalog_item.dart';
-import 'package:ias/shipments/models/prepcenter.dart';
+import '../../prepcenter/models/prepcenter.dart';
 
 class Shipment {
 
@@ -14,7 +14,10 @@ class Shipment {
   DateTime? createdAt;
   DateTime? purchaseDate;
   List<String>? tracks;
-  double? priceAvg;
+  double? unitCost;
+  double? shipCost;
+  double? prepCost;
+  double? totalUnitCost;
   Prepcenter? prepcenter;
   CatalogItem? catalogItem;
 
@@ -22,7 +25,7 @@ class Shipment {
 
  _test() {}
 
-  Shipment({this.shippingDate, this.deliveryDate,this.purchaseDate, this.priceAvg, this.catalogItem,
+  Shipment({this.shippingDate, this.deliveryDate,this.purchaseDate, this.unitCost, this.catalogItem,
   this.prepcenter, required this.count, this.type, this.tracks});
 
   factory Shipment.fromFirebase(DocumentSnapshot document) {
@@ -52,7 +55,7 @@ class Shipment {
       //deliverDate = DateTime.parse(json['deliver_date']),
       //deliverDate = json['deliver_date'],
       count = json['count'],
-      priceAvg = json['price_avg'],
+      unitCost = json['unit_cost'],
       prepcenter = json.containsKey('prepcenter') && json['prepcenter']!=null ?
           Prepcenter.fromJson(json['prepcenter']) : null,
 
@@ -72,7 +75,7 @@ class Shipment {
     if(purchaseDate!=null) 'purchase_date':purchaseDate,
     if(createdAt!=null) 'created_at':createdAt,
     'count':count,
-    if(priceAvg!=null)'price_avg':priceAvg,
+    if(unitCost!=null)'unit_cost':unitCost,
     if(prepcenter!=null)'prepcenter':prepcenter?.toJson(),
     if(catalogItem!=null)'catalog':catalogItem?.toJson(),
     if(type!=null) 'type':type,
