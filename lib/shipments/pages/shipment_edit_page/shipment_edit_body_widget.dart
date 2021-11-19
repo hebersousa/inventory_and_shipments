@@ -44,6 +44,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
 
 
   bool _loading = true;
+  bool _loadingButton = false;
   ShipmentListProvider? _shipListProvider;
   Shipment? item;
 
@@ -83,7 +84,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
       child: CupertinoActivityIndicator(),
     );
 
-    var saveBt = _loading ? progress
+    var saveBt = () => _loadingButton ? progress
     :  TextButton(onPressed: ()=> _saveShipment(),
         child: Text("Save", style: TextStyle(color: Colors.white),)
     );
@@ -91,7 +92,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
     return AppBar(title: title ,
       centerTitle: true,
       leading: backBt,
-      actions: [ saveBt],
+      actions: [ saveBt()],
     );
   }
 
@@ -286,6 +287,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
 
     if(_validateForm()) {
       setState(() => _loading = true);
+      setState(() => _loadingButton = true);
       var catalogChipProvider = Provider.of<CatalogChipsProvider>(
           context, listen: false);
       var catalogItem = catalogChipProvider.list.first;
@@ -324,6 +326,7 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
       _shipListProvider?.cleanList();
       _shipListProvider?.fetchNext();
       Navigator.of(context).pop();
+      setState(() => _loadingButton = false);
     }
 
   }

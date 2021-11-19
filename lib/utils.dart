@@ -115,7 +115,7 @@ class Utils {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: Text(message),
-      content: Container(),
+      content: SizedBox.shrink(),
       actions: [
         if(!yesNo) okButton,
         if(yesNo) yesButton,

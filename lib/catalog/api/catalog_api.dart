@@ -73,7 +73,10 @@ class CatalogApi {
 
             await _updateShipments(catalogItem, transaction);
           } else {
-            await catalogRef.add(catalogItem);
+
+             var doc =  FirebaseFirestore.instance.collection('catalog').doc();
+             catalogItem.key = doc.id;
+              await catalogRef.add(catalogItem);
           }
         }catch(e){
 
