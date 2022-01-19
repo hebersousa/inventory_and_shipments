@@ -135,7 +135,7 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
 
     String value = '\$  0.0';
     if(cost != null && cost > 0)
-     value = '\$' + cost.toString();
+     value = '\$' + cost.toStringAsFixed(2);
 
     return Tooltip(
       message: "Costs",
