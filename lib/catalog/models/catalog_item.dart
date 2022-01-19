@@ -31,6 +31,7 @@ class CatalogItem  {
   String? shortTitle;
   String? urlImage;
   int? count;
+  double? unitCostAvg = 0;
   String? urlResource;
 
   CatalogItem({required this.asin,
@@ -38,6 +39,7 @@ class CatalogItem  {
     this.shortTitle,
     this.urlImage,
     this.count,
+    this.unitCostAvg,
     this.urlResource});
 
   String get urlAmazon => 'http://www.amazon.com/dp/$asin';
@@ -59,6 +61,7 @@ class CatalogItem  {
     shortTitle = json['shortTitle'],
     urlImage = json['urlImage'],
     urlResource = json['resourceLink'],
+    unitCostAvg = json['unit_cost_avg'] ?? 0,
     count = json['count'];
 
 
@@ -73,6 +76,7 @@ class CatalogItem  {
       if(urlResource!=null) 'resourceLink' : urlResource,
       //'query' : '$asin $title $shortTitle'
       'count' : count ?? 0 ,
+      if(unitCostAvg!=null)'unit_cost_avg':unitCostAvg,
       if(asin!=null && title!=null)
         'keywords' : Utils.generateKeybyString(asin!.trim()) + Utils.generateKeybyArray(title!.trim().split(' '))
        // generateKeybyString e generateKeybyArray estava apresentando erro com strings terminadas em espaço. Por isso uso do trim()

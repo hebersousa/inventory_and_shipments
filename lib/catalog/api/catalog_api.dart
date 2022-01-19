@@ -63,6 +63,8 @@ class CatalogApi {
             toFirestore: (catalogItem, _) => catalogItem.toJson(),
           );
 
+          if(catalogItem.count == 0 )
+            catalogItem.unitCostAvg = 0;
 
           if (catalogItem.key != null) {
             transaction.set(

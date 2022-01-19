@@ -75,6 +75,10 @@ class _CatalogListViewWidgetState extends State<CatalogListViewWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text("$count units ", style: TextStyle(color: color),),
+        Text(" • ", style: TextStyle(color: color),),
+        Text(" \$${item.unitCostAvg?.toStringAsFixed(2)}  " , style: TextStyle(color: color),),
+        //Text("• ", style: TextStyle(color: color),),
+
        // CircleAvatar(child: Text("${item.count ?? 0}"),),
         if(item.urlResource!=null) _linkResource(item),
         SizedBox(width: 8,),

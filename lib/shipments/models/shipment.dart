@@ -14,19 +14,22 @@ class Shipment {
   DateTime? createdAt;
   DateTime? purchaseDate;
   List<String>? tracks;
-  double? unitCost;
-  double? shipCost;
-  double? prepCost;
-  double? totalUnitCost;
+  double? unitCost = 0;
+  double? shipCost = 0;
+  double? prepCost = 0;
+
   Prepcenter? prepcenter;
   CatalogItem? catalogItem;
 
   String? type;
 
  _test() {}
+  double get totalUnitCost => (unitCost ?? 0) + (shipCost ?? 0)  + (prepCost ?? 0) ;
 
-  Shipment({this.shippingDate, this.deliveryDate,this.purchaseDate, this.unitCost, this.catalogItem,
-  this.prepcenter, required this.count, this.type, this.tracks});
+
+  Shipment({this.shippingDate, this.deliveryDate,this.purchaseDate, this.unitCost,
+    this.prepCost, this.shipCost, this.catalogItem, this.prepcenter,
+    required this.count, this.type, this.tracks});
 
   factory Shipment.fromFirebase(DocumentSnapshot document) {
     var data = document.data()! as Map<String, dynamic>;
@@ -55,7 +58,9 @@ class Shipment {
       //deliverDate = DateTime.parse(json['deliver_date']),
       //deliverDate = json['deliver_date'],
       count = json['count'],
-      unitCost = json['unit_cost'],
+      unitCost = json['unit_cost'] ?? 0,
+      prepCost = json['prep_cost'] ?? 0,
+      shipCost = json['ship_cost'] ?? 0,
       prepcenter = json.containsKey('prepcenter') && json['prepcenter']!=null ?
           Prepcenter.fromJson(json['prepcenter']) : null,
 
@@ -76,6 +81,8 @@ class Shipment {
     if(createdAt!=null) 'created_at':createdAt,
     'count':count,
     if(unitCost!=null)'unit_cost':unitCost,
+    if(prepCost!=null)'prep_cost':prepCost,
+    if(shipCost!=null)'ship_cost':shipCost,
     if(prepcenter!=null)'prepcenter':prepcenter?.toJson(),
     if(catalogItem!=null)'catalog':catalogItem?.toJson(),
     if(type!=null) 'type':type,

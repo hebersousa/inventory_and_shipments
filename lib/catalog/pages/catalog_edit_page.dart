@@ -30,6 +30,7 @@ class _CatalogEditPageState extends State<CatalogEditPage> {
   final _urlImageController = TextEditingController();
   final _resourceLinksFieldController = TextEditingController();
   final _countController = TextEditingController();
+  final _costController = TextEditingController();
   late var _streamController = BehaviorSubject<String>();
   bool _loading = false;
   CatalogListProvider? _provider;
@@ -84,13 +85,16 @@ _linkImage() {
           shortTitle: _shortTitleController.text,
           urlImage: _urlImageController.text,
           urlResource: _resourceLinksFieldController.text,
+          unitCostAvg: double.tryParse(_costController.text) ?? 0,
           count: int.tryParse(_countController.text) ?? 0);
+
     else {
         item?.asin = _asinController.text;
         item?.title = _titleController.text;
         item?.shortTitle = _shortTitleController.text;
         item?.urlImage = _urlImageController.text;
         item?.count =  int.tryParse(_countController.text) ?? 0;
+        item?.unitCostAvg = double.tryParse(_costController.text) ?? 0;
         item?.urlResource = _resourceLinksFieldController.text;
     }
 
@@ -123,6 +127,11 @@ _linkImage() {
                 _countController.text = it.count.toString();
               else
                 _countController.text = "0";
+
+              if(it.unitCostAvg != null)
+                _costController.text = it.unitCostAvg!.toStringAsFixed(2);
+              else
+                _costController.text = "0";
             }
           }
 
@@ -170,6 +179,16 @@ _linkImage() {
     );
   }
 
+  _costField() {
+    return Container(
+      child: TextField(controller: _costController,
+        decoration: InputDecoration(labelText: 'Unit Cost Average (USD)',),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters:  [FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))],
+      ),
+    );
+  }
+
   _formField( TextEditingController textEditingController, String hintText, [Function? onTap]) {
     var decorator = InputDecoration(
       suffix: onTap!=null ? OutlinedButton(onPressed: ()=>onTap(), child: Text("Add")) : null,
@@ -201,6 +220,7 @@ _linkImage() {
         _formField(_shortTitleController, "Short Title"),
         _formField(_urlImageController, "URL Image"),
         _countField(),
+        _costField(),
         _formField(_resourceLinksFieldController,"Resource Link")
 
       ],),),

@@ -215,7 +215,6 @@ class _PrepcenterViewPageState extends State<PrepcenterViewPage> {
       onPressed: () => Navigator.pop(context, editingController.text),
     );
 
-
     AlertDialog alert = AlertDialog(
       title: Text(label),
       content: TextField(

@@ -89,12 +89,23 @@ class ShipmentApi {
     CatalogItem? catalogItem = doc.data();
 
     if(catalogItem != null) {
-      var currentCount = catalogItem.count ?? 0;
+      int currentCount =   catalogItem.count ?? 0;
+      double unitCostAvg  = catalogItem.unitCostAvg ?? 0;
+      double unitCost = shipment.unitCost ?? 0.0;
+      int shipCount = shipment.count;
 
       if(shipment.type=='PREP') {
-          catalogItem.count = currentCount + shipment.count;
+          catalogItem.count = currentCount + shipCount;
+          if(shipment.count != 0 && unitCost != 0 ) {
+            double factor1 = unitCostAvg*currentCount + unitCost*shipCount;
+            int factor2 = currentCount + shipCount;
+            catalogItem.unitCostAvg = factor1/ factor2 ;
+          }
+
       } else if(shipment.type=='AMZ') {
           catalogItem.count = currentCount - shipment.count;
+          if(catalogItem.count == 0)
+              catalogItem.unitCostAvg = 0;
       }
       transaction.set(
           catalogRef.doc(catalogItem.key),

@@ -3,9 +3,15 @@ import 'package:ias/catalog/models/catalog_item.dart';
 import 'package:ias/date_view.dart';
 import 'package:ias/shipments/api/shipment_api.dart';
 import 'package:ias/shipments/models/shipment.dart';
+import 'package:ias/shipments/pages/costs_page.dart';
 import 'package:ias/shipments/providers/shipment_list_provider.dart';
 import 'package:ias/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+class Item {
+  String label; String value;
+  Item(this.label, this.value);
+}
 
 class ShipmentListItem extends StatefulWidget {
   Shipment? item;
@@ -74,13 +80,18 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
               i++;
               return PopupMenuItem<String>(
                 value: choice,
-                child: Text("Tracking #$i"),
+                child: _smallText("Tracking #$i"),
               );
             }).toList();
           }
       );
-    return Container();
+
+    return SizedBox.shrink();
   }
+
+
+
+  _smallText(String text)=> Text(text, style: TextStyle(fontSize: 12),);
   
   _contentItem(Shipment item) {
     var catalog = item.catalogItem;
@@ -93,8 +104,10 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
       //  Text( "· ${item.count.toString()} units"),
         ],),
         Wrap(children: [
+
           _itemImage(catalog),
           //SizedBox(width: 10,),
+
           if(item.type=="PREP")
           DateView(date: item.purchaseDate,title: 'purchase',),
           SizedBox(width: 10,),
@@ -104,12 +117,66 @@ class _ShipmentListItemState extends State<ShipmentListItem> {
           if(item.type=="PREP") if(item.deliveryDate!=null)
           DateView(date: item.deliveryDate,title: 'delivery',)
           else if(item.shippingDate !=null) _inTransit(),
+          _costButton(item),
           if(item.type=="PREP")
-          _getPopUpMenuTracks(item)
+          _getPopUpMenuTracks(item),
+
+
+
         ],),
       ],);
   }
 
+
+  _costButton(Shipment shipment) {
+
+    double? cost = shipment.type ==  'PREP' ? shipment.unitCost
+        : shipment.totalUnitCost;
+
+    String value = '\$  0.0';
+    if(cost != null && cost > 0)
+     value = '\$' + cost.toString();
+
+    return Tooltip(
+      message: "Costs",
+      child: InkWell(
+        onTap: (){ _showCostsDialog(shipment); },
+        child: Padding(child:
+        Text(value, style: TextStyle(fontSize: 14,color: Colors.grey.shade600)),
+          padding: EdgeInsets.all(10),
+        ),
+      ),
+    );
+
+
+  }
+
+
+  Future<dynamic>  _showCostsDialog( Shipment shipment) {
+
+
+
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () => Navigator.pop(context),
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text("Costs"),
+      content: CostsPage(shipment: shipment ),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
   _inTransit()=>Text("In transit",
     style: TextStyle(color: Colors.red, fontSize: 10),);
 

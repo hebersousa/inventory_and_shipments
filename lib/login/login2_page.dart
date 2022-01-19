@@ -168,7 +168,7 @@ class _LoginPage2State extends State<Login2Page> {
                             children: [
                               _button("Sign In", _login),
                               SizedBox(width: 24.0),
-                              _button("Register", _goRegister
+                              _button("Register", (){}// _goRegister
                               ),
 
                             ],

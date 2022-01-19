@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 
+
 class ShipmentEditBodyWidget extends StatefulWidget {
 
   String? id;
@@ -32,13 +33,16 @@ class ShipmentEditBodyWidget extends StatefulWidget {
 }
 
 class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
-
+  static String DESTINATION_PREP = "PREP";
+  static String DESTINATION_AMZ = "AMZ";
   final _formKey = GlobalKey<FormState>();
   final _countController = TextEditingController();
   final _shippingDateController = TextEditingController();
   final _deliveryDateController = TextEditingController();
   final _purchaseDateController = TextEditingController();
-
+  final _unitcostController = TextEditingController();
+  final _prepcostController = TextEditingController();
+  final _shipcostController = TextEditingController();
   final _destinationStreamController = BehaviorSubject<List<bool>>();
   final _trackChipsController = BehaviorSubject<List<String>>();
 
@@ -57,6 +61,15 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
   @override
   void dispose() {
     _destinationStreamController.close();
+    _countController.dispose();
+    _shippingDateController.dispose();
+    _deliveryDateController.dispose();
+    _purchaseDateController.dispose();
+    _unitcostController.dispose();
+    _prepcostController.dispose();
+    _shipcostController.dispose();
+    _destinationStreamController.close();
+    _trackChipsController.close();
     super.dispose();
   }
 
@@ -64,9 +77,10 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
   Future<Shipment> _getData() async{
     Shipment? itemValue;
     if(widget.id != null) {
-      var doc = await FirebaseFirestore.instance
+      var docShip = await FirebaseFirestore.instance
           .collection('shipment').doc(widget.id).get();
-      itemValue = Shipment.fromFirebase(doc);
+      itemValue = Shipment.fromFirebase(docShip);
+
     }
      _loading = false;
     return Future<Shipment>(()=>itemValue!);
@@ -134,6 +148,16 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
 
           if(shipment.count != null)
             _countController.text = shipment.count.toString();
+
+          if(shipment.unitCost != null)
+            _unitcostController.text = shipment.unitCost!.toStringAsFixed(2);
+
+          if(shipment.prepCost != null)
+            _prepcostController.text = shipment.prepCost!.toStringAsFixed(2);
+
+          if(shipment.shipCost != null )
+            _shipcostController.text = shipment.shipCost!.toStringAsFixed(2);
+
           if(shipment.shippingDate != null)
             _shippingDateController.text = Utils.formatToDate(shipment.shippingDate!);
 
@@ -156,9 +180,11 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
           if(shipment.tracks != null)
             _trackChipsController.add(shipment.tracks!);
 
-          if(shipment.type!= null && shipment.type!.contains("PREP"))
+          //if(shipment.type!= null && shipment.type!.contains("PREP"))
+          if(shipment.type!= null && shipment.type == DESTINATION_PREP)
             _destinationStreamController.add([true,false]);
-          else if(shipment.type!= null && shipment.type!.contains("AMZ"))
+          //else if(shipment.type!= null && shipment.type!.contains("AMZ"))
+          else if(shipment.type!= null && shipment.type == DESTINATION_AMZ)
             _destinationStreamController.add([false,true]);
           else
             _destinationStreamController.add([false,false]);
@@ -176,13 +202,18 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
                 _destinationButtons(),
                 PrepcenterAutocompleteWidget(),
                 CatalogAutocompleteWidget(),
-                if(_getDestinationOption() == "PREP")
+                if(_getDestinationOption() == DESTINATION_PREP)
                     _calendarField(_purchaseDateController, "Purchase Date"),
                 _calendarField(_shippingDateController, "Shipping Date"),
-                if(_getDestinationOption() == "PREP")
+                if(_getDestinationOption() == DESTINATION_PREP)
                     _calendarField(_deliveryDateController, "Deliver Date"),
                 _countField(),
-                if(_getDestinationOption() == "PREP")
+                _unitCostField2(),
+                if(_getDestinationOption() == DESTINATION_AMZ)
+                _prepCostField2(),
+                if(_getDestinationOption() == DESTINATION_AMZ)
+                _shipCostField(),
+                if(_getDestinationOption() == DESTINATION_PREP)
                   TrackChipsWidget(streamController: _trackChipsController)
 
               ],),
@@ -198,6 +229,92 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
         decoration: InputDecoration(labelText: 'Number of Items',),
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+    );
+  }
+
+  _unitCostField() {
+    return Container(
+      child: TextField(controller: _unitcostController,
+        decoration: InputDecoration(labelText: 'Unit Cost (USD)',),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters:  [FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))],
+      ),
+    );
+  }
+  _unitCostField2() {
+    var catalogChipProvider = Provider.of<CatalogChipsProvider>(
+        context);
+
+    return StreamBuilder<List<CatalogItem>>(
+        initialData: [],
+        stream: catalogChipProvider.stream,
+        builder: (context,shot) {
+          double? value = null;
+          if(shot.hasData && shot.data!.length > 0 ) {
+            var first = shot.data?.first;
+            value = first?.unitCostAvg;
+            if(value != null && value > 0)
+              _unitcostController.text = value.toStringAsFixed(2);
+          }
+
+          return Container(
+            child: TextField(controller: _unitcostController,
+              decoration: InputDecoration(labelText: 'Unit Cost (USD)',),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              inputFormatters:  [FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))],
+            ),
+          );
+
+    });
+/*
+    return StreamProvider<List<CatalogItem>>.value(initialData: [],
+    value: catalogChipProvider.stream ,
+    child: ,); */
+  }
+
+  _prepCostField2() {
+    var prepChipProvider = Provider.of<PrepcenterChipsProvider>(context);
+
+    return StreamBuilder<List<Prepcenter>>(
+        initialData: [],
+        stream: prepChipProvider.stream,
+        builder: (context, shot) {
+          double? value = null;
+          if (shot.hasData && shot.data!.length > 0) {
+            var first = shot.data?.first;
+            value = first?.priceUnit;
+            if (value != null && value > 0)
+              _prepcostController.text = value.toStringAsFixed(2);
+          }
+
+          return Container(
+            child: TextField(controller: _prepcostController,
+              decoration: InputDecoration(labelText: 'Prep Cost (USD)',),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))
+              ],
+            ),
+          );
+        });
+  }
+
+  _prepCostField() {
+    return Container(
+      child: TextField(controller: _prepcostController,
+        decoration: InputDecoration(labelText: 'Prep Cost (USD)',),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters:  [FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))],
+      ),
+    );
+  }
+  _shipCostField() {
+    return Container(
+      child: TextField(controller: _shipcostController,
+        decoration: InputDecoration(labelText: 'Ship Cost (USD)',),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters:  [FilteringTextInputFormatter.allow(RegExp("[0-9.]+"))],
       ),
     );
   }
@@ -258,11 +375,9 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
                 ],
                 isSelected: destinationOptions!,
                 onPressed: (index) {
-
                   var selected = [false,false];
                   selected[index] = true;
                   _destinationStreamController.add(selected);
-
                 },
 
               ),
@@ -277,8 +392,8 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
 
     var options =  _destinationStreamController.value;
 
-    if(options[0]) return "PREP";
-    if(options[1]) return "AMZ";
+    if(options[0]) return DESTINATION_PREP;
+    if(options[1]) return DESTINATION_AMZ;
 
     return null;
   }
@@ -301,6 +416,11 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
       if (item == null) {
         item = Shipment(
             count: int.parse(_countController.text),
+            unitCost:  double.tryParse(_unitcostController.text),
+            prepCost:  _getDestinationOption() == DESTINATION_AMZ ?
+              double.tryParse(_prepcostController.text) : 0.0,
+            shipCost:  _getDestinationOption() == DESTINATION_AMZ ?
+              double.tryParse(_shipcostController.text) : 0.0,
             shippingDate: DateTime.tryParse(_shippingDateController.text),
             deliveryDate: DateTime.tryParse(_deliveryDateController.text),
             purchaseDate: DateTime.tryParse(_purchaseDateController.text),
@@ -311,6 +431,11 @@ class _ShipmentEditBodyWidgetState extends State<ShipmentEditBodyWidget> {
         );
       } else {
         item?.count = int.parse(_countController.text);
+        item?.unitCost = double.tryParse(_unitcostController.text);
+        item?.prepCost = _getDestinationOption() == DESTINATION_AMZ ?
+        double.tryParse(_prepcostController.text) : 0.0;
+        item?.shipCost = _getDestinationOption() == DESTINATION_AMZ ?
+        double.tryParse(_shipcostController.text) : 0.0;
         item?.shippingDate = DateTime.tryParse(_shippingDateController.text);
         item?.deliveryDate = DateTime.tryParse(_deliveryDateController.text);
         item?.purchaseDate = DateTime.tryParse(_purchaseDateController.text);
