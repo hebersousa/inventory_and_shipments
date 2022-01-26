@@ -78,7 +78,12 @@ class CatalogApi {
 
              var doc =  FirebaseFirestore.instance.collection('catalog').doc();
              catalogItem.key = doc.id;
-              await catalogRef.add(catalogItem);
+             transaction.set(
+                 catalogRef.doc(catalogItem.key),
+                 catalogItem,
+                 SetOptions(merge: true)
+             );
+              //await catalogRef.add(catalogItem);
           }
         }catch(e){
 
