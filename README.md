@@ -1,16 +1,11 @@
-# ias
+# Inventory and Shipments
 
-IAS - Inventory and Shipments
+This project is an Inventory Manager for Amazon Third-Party Sellers using Flutter Web, Firebase Authentication, Cloud Firestore and Firebase Hosting.
 
-## Getting Started
+## Inventory Search Screen:
 
-This project is a starting point for a Flutter application.
+![Captura de tela 2023-06-02 171016](https://github.com/hebersousa/inventory_and_shipments/assets/8524608/62d1b728-7c10-4c4b-8fb9-1512c4304bf1)
 
-A few resources to get you started if this is your first Flutter project:
+## Product Shipment Registration Screen:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![inventory](https://github.com/hebersousa/inventory_and_shipments/assets/8524608/4944bceb-588b-4881-a296-2d1dbf445d64)
